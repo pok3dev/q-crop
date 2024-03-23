@@ -3,11 +3,17 @@ const korisnikKontroleri = require("../kontroleri/korisnikKontroleri");
 
 const korisnikRuter = express.Router();
 
-korisnikRuter.get("/dohvatiKorisnika", korisnikKontroleri.dohvatiKorisnika);
 korisnikRuter.post(
-  "/registrujKorisnika",
+  "/korisnik/dohvatiKorisnika",
+  korisnikKontroleri.dohvatiKorisnika
+);
+korisnikRuter.post(
+  "/korisnik/registrujKorisnika",
   korisnikKontroleri.registrujKorisnika
 );
-korisnikRuter.delete("/obrisiKorisnika", korisnikKontroleri.izbrišiKorisnika);
+korisnikRuter.delete(
+  "/korisnik/obrisiKorisnika",
+  korisnikKontroleri.izbrišiKorisnika
+);
 
 module.exports = korisnikRuter;

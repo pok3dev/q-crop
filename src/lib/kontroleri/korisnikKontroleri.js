@@ -8,7 +8,7 @@ exports.dohvatiKorisnika = catchAsync(async (req, res, next) => {
   db.query(pravaŠifraQuery, async (error, results) => {
     if (results.length === 0) {
       return res.status(400).json({
-        status: "Greška...",
+        status: "Greška",
         poruka: "Podaci su neispravni",
       });
     }
@@ -20,23 +20,23 @@ exports.dohvatiKorisnika = catchAsync(async (req, res, next) => {
         ? pravaŠifra
         : null,
     };
-    const query = `select * from korisnici where mejl="${login.mejl}" AND šifra="${login.šifra}"`;
+    const query = `select ime,mejl from korisnici where mejl="${login.mejl}" AND šifra="${login.šifra}"`;
     db.query(query, (error, results) => {
       if (error) {
         return res.status(400).json({
-          status: "Greška...",
+          status: "Greška",
           poruka: error.message,
         });
       }
       if (results.length === 1) {
         res.status(200).json({
-          status: "uspjesno",
+          status: "Uspješno",
           korisnik:
             results.length === 1 ? results[0] : "Korisnik ne postoji...",
         });
       } else {
         res.status(403).json({
-          status: "Greška...",
+          status: "Greška",
           poruka: "Podaci su neispravni",
         });
       }
@@ -57,13 +57,16 @@ exports.registrujKorisnika = catchAsync(async (req, res, next) => {
     `insert into korisnici(ime,prezime,mejl,šifra) value ("${korisnik.ime}", "${korisnik.prezime}","${korisnik.mejl}","${korisnik.šifra}");`,
     (error, results) => {
       if (error) {
+        error.message.startsWith("ER_DUP_ENTRY")
+          ? (error.message = "Mejl već postoji")
+          : null;
         res.status(400).json({
-          status: "Greška...",
+          status: "Greška",
           poruka: error.message,
         });
       } else
         res.status(200).json({
-          status: "uspjesno",
+          status: "Uspješno",
           korisnik,
         });
     }
@@ -75,7 +78,7 @@ exports.izbrišiKorisnika = catchAsync(async (req, res) => {
   db.query(pravaŠifraQuery, async (error, results) => {
     if (error || results.length === 0) {
       return res.status(400).json({
-        status: "greška",
+        status: "Greška",
         poruka: "Neispravni podaci...",
       });
     }
@@ -89,7 +92,7 @@ exports.izbrišiKorisnika = catchAsync(async (req, res) => {
       db.query(query, (error, results) => {
         if (error) {
           return res.status(400).json({
-            status: "greška",
+            status: "Greška",
             poruka: error.message,
           });
         }
@@ -97,7 +100,7 @@ exports.izbrišiKorisnika = catchAsync(async (req, res) => {
       });
     else {
       return res.status(400).json({
-        status: "greška",
+        status: "Greška",
         poruka: "Neispravni podaci2...",
       });
     }

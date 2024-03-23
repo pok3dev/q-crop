@@ -1,9 +1,10 @@
+"use client";
 import Kartica from "@/komponente/Kartica";
 import Strelica from "@/komponente/ikone/Strelica";
 import Footer from "@/komponente/navbar/Footer";
 import Navbar from "@/komponente/navbar/Navbar";
 
-export default function Home() {
+const Pocetna = () => {
   return (
     <>
       <Navbar />
@@ -33,4 +34,6 @@ export default function Home() {
       <Footer />
     </>
   );
-}
+};
+
+export default Pocetna;

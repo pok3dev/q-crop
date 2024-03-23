@@ -16,11 +16,20 @@ import { useEffect, useRef, useState } from "react";
 import Sacuvaj from "@/komponente/ikone/Sacuvaj";
 import Preuzmi from "@/komponente/ikone/Preuzmi";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
+import Alert from "@/komponente/Alert";
+import { useRouter } from "next/navigation";
 
 const Slika = () => {
+  const [porukaGreske, setPorukaGreske] = useState("");
   const [menu, setMenu] = useState(false);
   const [sekcija, setSekcija] = useState(-1);
   const [rezanje, setRezanje] = useState(false);
+  const [slika, setSlika] = useState("");
+  const [ucitavanjeSlike, setUcitavanjeSlike] = useState(true);
+
+  const pathname = usePathname();
 
   const filteri = [
     [1, 1, 0, 1, 0],
@@ -28,24 +37,6 @@ const Slika = () => {
   ];
 
   const elemenat = useRef(filteri);
-  const cropperRef = useRef(null);
-
-  const onCrop = () => {
-    const cropper = cropperRef.current?.cropper;
-    console.log(cropper);
-  };
-
-  const handleIzreži = () => {
-    const cropper = cropperRef.current?.cropper;
-    setRezanje(false);
-    document.getElementById("slika").src = cropper
-      .getCroppedCanvas()
-      .toDataURL("image/png");
-  };
-
-  useEffect(() => {
-    setMenu(false);
-  }, []);
 
   const postaviFiltere = () => {
     const svjetlo = [...elemenat.current[0]];
@@ -68,6 +59,95 @@ const Slika = () => {
     postaviFiltere();
   };
 
+  const setFilteri = ({
+    svjetlost,
+    kontrast,
+    sjenke,
+    bijele,
+    crne,
+    temperatura,
+    tinta,
+    vibranca,
+    saturacija,
+  }) => {
+    elemenat.current[0][0] = svjetlost;
+    elemenat.current[0][1] = kontrast;
+    elemenat.current[0][2] = sjenke;
+    elemenat.current[0][3] = bijele;
+    elemenat.current[0][4] = crne;
+    elemenat.current[1][0] = temperatura;
+    elemenat.current[1][1] = tinta;
+    elemenat.current[1][2] = vibranca;
+    elemenat.current[1][3] = saturacija;
+    console.log(elemenat.current);
+    postaviFiltere();
+  };
+
+  const cropperRef = useRef(null);
+
+  const onCrop = () => {
+    const cropper = cropperRef.current?.cropper;
+  };
+
+  let slikaString;
+
+  const handleIzreži = () => {
+    const cropper = cropperRef.current?.cropper;
+    setRezanje(false);
+    slikaString = cropper.getCroppedCanvas().toDataURL("image/png");
+    document.getElementById("slika").srcset = slikaString;
+  };
+
+  const dohvatiProjekat = async () => {
+    const url = await fetch("http://localhost:3001/projekti/dohvatiProjekat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: pathname.split("/")[2],
+      }),
+    });
+    const res = await url.json();
+    console.log(res);
+    if (res.status === "Uspješno") {
+      setSlika(res.projekat[0].slika);
+      setUcitavanjeSlike(false);
+      setFilteri({ ...res.filteri[0] });
+    } else return setPorukaGreske(res.poruka);
+  };
+
+  useEffect(() => {
+    setMenu(false);
+    dohvatiProjekat();
+  }, []);
+
+  const handleSacuvaj = async () => {
+    const podaci = {
+      id: pathname.split("/")[2],
+      svjetlost: elemenat.current[0][0],
+      kontrast: elemenat.current[0][1],
+      sjenke: elemenat.current[0][2],
+      bijele: elemenat.current[0][3],
+      crne: elemenat.current[0][4],
+      temperatura: elemenat.current[1][0],
+      tinta: elemenat.current[1][1],
+      vibranca: elemenat.current[1][2],
+      saturacija: elemenat.current[1][3],
+    };
+    const url = await fetch("http://localhost:3001/projekti/sacuvajProjekat", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(podaci),
+    });
+    const res = await url.json();
+    if (res.status === "Uspješno") {
+      setPorukaGreske("Uspješno sačuvan projekat");
+    } else return setPorukaGreske(res.poruka);
+  };
+
   const handleMouseDown = () => {
     document.querySelector("#slika").style.filter = "";
     document.querySelector(".tip").style.display = "none";
@@ -85,6 +165,8 @@ const Slika = () => {
   const meniSekcije = ["Svjetlo", "Boje", "Efekti", "Detalji"];
   return (
     <div>
+      {/* Alert komponenta */}
+      {porukaGreske && <Alert poruka={porukaGreske} setter={setPorukaGreske} />}
       <span className="flex justify-between items-center text-white py-6 px-12 bg-slate-800">
         <button className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:scale-105 group">
           <Preuzmi
@@ -102,6 +184,7 @@ const Slika = () => {
           <Sacuvaj
             velicina={512}
             klase={`w-6 z-50 transition-all duration-300 group-hover:translate-y-1`}
+            cb={handleSacuvaj}
           />
           <h1>Sačuvaj</h1>
         </button>
@@ -125,17 +208,27 @@ const Slika = () => {
             <div className="absolute w-[60vw] h-[480px] bg-black hover:opacity-40 cursor-pointer opacity-0 group-hover:opacity-50 z-20  transition-all duration-300"></div>
           </div>
           <div className="flex flex-col items-center justify-between gap-1">
-            <div className="max-h-[60vh] overflow-hidden">
-              <img
-                id="slika"
-                src="https://images.pexels.com/photos/18666530/pexels-photo-18666530/free-photo-of-glacier-water.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-              ></img>
+            <div className="relative max-h-[60vh] overflow-hidden">
+              <>
+                {ucitavanjeSlike && (
+                  <h1 className="text-white text-2xl mt-[25vh]">
+                    Slika se ucitava...
+                  </h1>
+                )}
+                {!ucitavanjeSlike && (
+                  <img
+                    id="slika"
+                    src={`/slike/${slika}`}
+                    alt="editovana-slika"
+                    className="max-h-[60vh]"
+                  ></img>
+                )}
+              </>
+
               {rezanje && (
                 <Cropper
-                  src="https://images.pexels.com/photos/18666530/pexels-photo-18666530/free-photo-of-glacier-water.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                  className="absolute max-h-[60vh] top-[7.8vh] left-0 z-70"
-                  // Cropper.js options
-                  initialAspectRatio={16 / 9}
+                  src={`/slike/${slika}`}
+                  className="absolute max-h-[60vh] top-0 left-0 z-70"
                   guides={false}
                   crop={onCrop}
                   ref={cropperRef}
@@ -184,20 +277,20 @@ const Slika = () => {
           </button>
           <button
             className="h-16 my-4 transition-all duration-300 hover:scale-105 hover:text-green-500"
-            onClick={() => {
-              setSekcija(2);
-              setMenu(true);
-            }}
+            // onClick={() => {
+            //   setSekcija(2);
+            //   setMenu(true);
+            // }}
           >
             <Efekti velicina={512} klase={`w-8`} />
             <h2>Efekti</h2>
           </button>
           <button
             className="h-16 my-4 transition-all duration-300 hover:scale-105 hover:text-gray-500"
-            onClick={() => {
-              setSekcija(3);
-              setMenu(true);
-            }}
+            // onClick={() => {
+            //   setSekcija(3);
+            //   setMenu(true);
+            // }}
           >
             <Detalji velicina={512} klase={`w-8`} />
             <h2>Detalji</h2>

@@ -1,6 +1,6 @@
-const Sacuvaj = ({ velicina, klase }) => {
+const Sacuvaj = ({ velicina, klase, cb }) => {
   return (
-    <div className="flex justify-center align-middle">
+    <div className="flex justify-center align-middle" onClick={cb}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class={`ionicon ${klase}`}
