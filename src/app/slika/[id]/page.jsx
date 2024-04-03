@@ -89,13 +89,12 @@ const Slika = () => {
     const cropper = cropperRef.current?.cropper;
   };
 
-  let slikaString;
-
   const handleIzreži = () => {
     const cropper = cropperRef.current?.cropper;
     setRezanje(false);
-    slikaString = cropper.getCroppedCanvas().toDataURL("image/png");
-    document.getElementById("slika").srcset = slikaString;
+    document.getElementById("slika").srcset = cropper
+      .getCroppedCanvas()
+      .toDataURL("image/png");
   };
 
   const dohvatiProjekat = async () => {
@@ -142,6 +141,17 @@ const Slika = () => {
       },
       body: JSON.stringify(podaci),
     });
+
+    const url2 = await fetch("http://localhost:3001/projekti/sacuvajSliku", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      body: JSON.stringify({
+        slikaString: "few",
+      }),
+    });
+
     const res = await url.json();
     if (res.status === "Uspješno") {
       setPorukaGreske("Uspješno sačuvan projekat");

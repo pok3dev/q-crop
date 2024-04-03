@@ -11,9 +11,14 @@ projektiRuter.post(
   "/projekti/dohvatiProjekat",
   projektiKontroleri.dohvatiProjekat
 );
+projektiRuter.post(
+  "/projekti/dohvatiProjekte",
+  projektiKontroleri.dohvatiProjekte
+);
 projektiRuter.patch(
   "/projekti/sacuvajProjekat",
   projektiKontroleri.sacuvajProjekat
 );
+projektiRuter.patch("/projekti/sacuvajSliku", projektiKontroleri.sacuvajSliku);
 
 module.exports = projektiRuter;

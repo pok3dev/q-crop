@@ -1,12 +1,25 @@
-const Kartica = () => {
+import Link from "next/link";
+
+const Kartica = ({ id, naziv, slika, datum }) => {
   // Kartica - Predstavlja pojedinacni projekat u aplikaciji
+  const formatiranDatum = datum.split("-");
+  const povezanDatum = `${formatiranDatum[2].slice(0, 2)}.${
+    formatiranDatum[1]
+  }.${formatiranDatum[0]}.`;
   return (
-    <div className="h-[330px] w-[220px] bg-gray-500 rounded-xl">
-      <div className="flex flex-col text-center bg-transparent mt-[270px]">
-        <h3 className="bg-inherit text-sm">Naziv</h3>
-        <h6 className="bg-inherit text-sm">20.2.2024.</h6>
+    <Link
+      href={`slika/${id}`}
+      className="relative h-[330px] w-[220px] bg-transparent rounded-xl overflow-hidden hover:scale-105 transition-all duration-500 drop-shadow-xl"
+    >
+      <div className="flex flex-col text-center bg-[#000000aa] mt-[260px] py-4">
+        <h3 className="text-sm">{naziv}</h3>
+        <h6 className="text-sm">{povezanDatum}</h6>
       </div>
-    </div>
+      <img
+        src={`/slike/${slika}`}
+        className="object-cover h-[330px] w-[220px] absolute left-0 top-0 -z-10"
+      ></img>
+    </Link>
   );
 };
 

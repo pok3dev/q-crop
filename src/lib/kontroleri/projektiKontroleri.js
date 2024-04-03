@@ -1,7 +1,25 @@
 const db = require("../db");
 const { catchAsync } = require("../alati/catchAsync");
 const fs = require("fs");
-const { query } = require("express");
+
+exports.dohvatiProjekte = (req, res, next) => {
+  const idKorisnika = req.body.idKorisnika;
+  if (!idKorisnika) throw new Error("Nesto nije u redu...");
+  const query = `select * from slike where id_korisnika=${idKorisnika}`;
+  db.query(query, (error, rezultatiProjekata) => {
+    if (error) {
+      res.status(400).json({
+        status: "Greška",
+        poruka: error.message,
+      });
+    } else {
+      res.status(200).json({
+        status: "Uspješno",
+        projekti: rezultatiProjekata,
+      });
+    }
+  });
+};
 
 exports.kreirajProjekat = (req, res, next) => {
   // Postavljanje vrijednosti novog projekta
@@ -107,6 +125,10 @@ exports.sacuvajProjekat = (req, res, next) => {
         projekat: results,
       });
   });
+};
+exports.sacuvajSliku = (req, res, next) => {
+  console.log(req.body);
+  res.status(200);
 };
 // exports.registrujKorisnika = catchAsync(async (req, res, next) => {
 //     const korisnik = {

@@ -3,8 +3,40 @@ import Kartica from "@/komponente/Kartica";
 import Strelica from "@/komponente/ikone/Strelica";
 import Footer from "@/komponente/navbar/Footer";
 import Navbar from "@/komponente/navbar/Navbar";
+import { useEffect, useState } from "react";
 
 const Pocetna = () => {
+  // 1. useState hookovi
+  const [projekti, setProjekti] = useState([]);
+  const idKorisnika = 27;
+  // 2. Dohvatanje niza projekata odredjenog korisnika
+  const dohvatiProjekte = async () => {
+    const url = await fetch("http://localhost:3001/projekti/dohvatiProjekte", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        idKorisnika: idKorisnika,
+      }),
+    });
+    const res = await url.json();
+    let projektiTemp = [];
+    // 3. Postavljanje projekata u projekti hook za prikazivanje na ekranu
+    res.projekti.forEach((element) => {
+      projektiTemp.push({
+        id: element.id,
+        imeProjekta: element.ime_projekta,
+        slika: element.slika,
+        datumKreiranja: element.datum_kreiranja,
+      });
+    });
+    setProjekti(projektiTemp);
+  };
+  // 4. useEffect za dohvatanje projekata na inicijalnom ucitavanju stranice
+  useEffect(() => {
+    dohvatiProjekte();
+  });
   return (
     <>
       <Navbar />
@@ -24,10 +56,15 @@ const Pocetna = () => {
         </div>
         {/* Projekti */}
         <div className="flex px-10 gap-6">
-          <Kartica />
-          <Kartica />
-          <Kartica />
-          <Kartica />
+          {projekti.map((item) => (
+            <Kartica
+              key={item.id}
+              id={item.id}
+              naziv={item.imeProjekta}
+              slika={item.slika}
+              datum={item.datumKreiranja}
+            />
+          ))}
         </div>
       </main>
       {/* Podnozje sa dugmicima zapocinjanja projekta */}
