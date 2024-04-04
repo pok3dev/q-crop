@@ -54,6 +54,26 @@ const Slika = () => {
     document.querySelector("#slika").style.filter = povezan;
   };
 
+  const filteriCrop = () => {
+    const svjetlo = [...elemenat.current[0]];
+    const boje = [...elemenat.current[1]];
+    svjetlo[0] = `brightness(${elemenat.current[0][0]})`;
+    svjetlo[1] = `contrast(${elemenat.current[0][1]})`;
+    svjetlo[2] = `grayscale(${elemenat.current[0][2]})`;
+    svjetlo[3] = `brightness(${elemenat.current[0][3]})`;
+    svjetlo[4] = `brightness(${1 - elemenat.current[0][4]})`;
+    boje[0] = `hue-rotate(${elemenat.current[1][0] * 180}deg)`;
+    boje[1] = `sepia(${elemenat.current[1][1]})`;
+    boje[2] = `saturate(${elemenat.current[1][2]})`;
+    boje[3] = `saturate(${elemenat.current[1][3]})`;
+    const povezan = svjetlo.join(" ") + " " + boje.join(" ");
+    return povezan;
+  };
+
+  const filteriObj = {
+    filter: filteriCrop(),
+  };
+
   const postaviFilter = (vrijednost, menu, indeks) => {
     elemenat.current[menu][indeks] = vrijednost;
     postaviFiltere();
@@ -79,7 +99,6 @@ const Slika = () => {
     elemenat.current[1][1] = tinta;
     elemenat.current[1][2] = vibranca;
     elemenat.current[1][3] = saturacija;
-    console.log(elemenat.current);
     postaviFiltere();
   };
 
@@ -87,14 +106,43 @@ const Slika = () => {
 
   const onCrop = () => {
     const cropper = cropperRef.current?.cropper;
+    postaviFiltere();
   };
+
+  function dataURLtoBlob(dataURL) {
+    let array, binary, i, len;
+    binary = atob(dataURL.split(",")[1]);
+    array = [];
+    i = 0;
+    len = binary.length;
+    while (i < len) {
+      array.push(binary.charCodeAt(i));
+      i++;
+    }
+    return new Blob([new Uint8Array(array)], {
+      type: "image/png",
+    });
+  }
+
+  const [prethodnoStanje, setPrethodnoStanje] = useState("");
 
   const handleIzreži = () => {
     const cropper = cropperRef.current?.cropper;
     setRezanje(false);
-    document.getElementById("slika").srcset = cropper
+
+    if (prethodnoStanje === "") setPrethodnoStanje(`/slike/${slika}`);
+    else setPrethodnoStanje(document.getElementById("slika").src);
+    console.log(prethodnoStanje);
+
+    document.getElementById("slika").src = cropper
       .getCroppedCanvas()
       .toDataURL("image/png");
+  };
+
+  const handlePoništi = () => {
+    if (!prethodnoStanje) return;
+    document.getElementById("slika").src = prethodnoStanje;
+    setPrethodnoStanje("");
   };
 
   const dohvatiProjekat = async () => {
@@ -108,8 +156,7 @@ const Slika = () => {
       }),
     });
     const res = await url.json();
-    console.log(res);
-    if (res.status === "Uspješno") {
+    if (res.status === "Uspješno" && res.projekat.length != 0) {
       setSlika(res.projekat[0].slika);
       setUcitavanjeSlike(false);
       setFilteri({ ...res.filteri[0] });
@@ -120,6 +167,21 @@ const Slika = () => {
     setMenu(false);
     dohvatiProjekat();
   }, []);
+
+  function dataURLtoBlob(dataURL) {
+    let array, binary, i, len;
+    binary = atob(dataURL.split(",")[1]);
+    array = [];
+    i = 0;
+    len = binary.length;
+    while (i < len) {
+      array.push(binary.charCodeAt(i));
+      i++;
+    }
+    return new Blob([new Uint8Array(array)], {
+      type: "image/png",
+    });
+  }
 
   const handleSacuvaj = async () => {
     const podaci = {
@@ -142,19 +204,31 @@ const Slika = () => {
       body: JSON.stringify(podaci),
     });
 
+    const file = dataURLtoBlob(
+      cropperRef.current?.cropper.getCroppedCanvas().toDataURL("image/png")
+    );
+    console.log(file);
+    const formData = new FormData();
+    formData.append("slika", file, "foto_0934.jpg");
+    for (var key of formData.entries()) {
+      console.log(key[0] + ", " + key[1]);
+    }
+
     const url2 = await fetch("http://localhost:3001/projekti/sacuvajSliku", {
       method: "PATCH",
+      redirect: "follow",
       headers: {
-        "Content-Type": "multipart/form-data",
+        // "Content-Type": "multipart/form-data",
       },
-      body: JSON.stringify({
-        slikaString: "few",
-      }),
+      body: formData,
     });
 
     const res = await url.json();
     if (res.status === "Uspješno") {
-      setPorukaGreske("Uspješno sačuvan projekat");
+      const res2 = await url2.json();
+      if (res2.status === "Uspješno") {
+        setPorukaGreske("Uspješno sačuvan projekat");
+      } else return setPorukaGreske(res2.poruka);
     } else return setPorukaGreske(res.poruka);
   };
 
@@ -237,7 +311,9 @@ const Slika = () => {
 
               {rezanje && (
                 <Cropper
-                  src={`/slike/${slika}`}
+                  // src={`/slike/${slika}`}
+                  src={document.getElementById("slika").src}
+                  style={{ filter: filteriObj.filter }}
                   className="absolute max-h-[60vh] top-0 left-0 z-70"
                   guides={false}
                   crop={onCrop}
@@ -247,10 +323,18 @@ const Slika = () => {
             </div>
             {rezanje && (
               <button
-                className="font-bold w-32 bg-slate-800 px-8 py-4 text-white rounded-md"
+                className="font-bold w-32 bg-slate-800 px-8 py-4 mt-4 text-white rounded-md"
                 onClick={handleIzreži}
               >
                 IZREŽI
+              </button>
+            )}
+            {!rezanje && prethodnoStanje != "" && (
+              <button
+                className="font-bold w-32 bg-slate-800 px-8 py-4 mt-4 text-white rounded-md"
+                onClick={handlePoništi}
+              >
+                PONIŠTI
               </button>
             )}
           </div>
@@ -260,6 +344,7 @@ const Slika = () => {
             className="h-16 my-4 transition-all duration-300 hover:scale-105 hover:text-blue-500"
             onClick={() => {
               setRezanje(true);
+              postaviFiltere();
             }}
           >
             <Izrezi velicina={512} klase={`w-8`} />

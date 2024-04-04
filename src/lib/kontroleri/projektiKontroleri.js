@@ -1,6 +1,7 @@
 const db = require("../db");
 const { catchAsync } = require("../alati/catchAsync");
 const fs = require("fs");
+const { error } = require("console");
 
 exports.dohvatiProjekte = (req, res, next) => {
   const idKorisnika = req.body.idKorisnika;
@@ -126,9 +127,23 @@ exports.sacuvajProjekat = (req, res, next) => {
       });
   });
 };
-exports.sacuvajSliku = (req, res, next) => {
-  console.log(req.body);
-  res.status(200);
+exports.sacuvajSliku = async (req, res, next) => {
+  console.log(req);
+  if (!req.file)
+    return res.status(400).json({
+      status: "Greška",
+    });
+  console.log(req.file);
+  // await sharp(req.file.buffer)
+  //   .toFormat("jpeg")
+  //   .jpeg({ quality: 90 })
+  //   .toFile(`../../public/slike/${req.file.originalname.split(".")[0]}.jpeg`);
+
+  // req.body.slika = req.file.filename;
+
+  res.status(200).json({
+    status: "Uspješno",
+  });
 };
 // exports.registrujKorisnika = catchAsync(async (req, res, next) => {
 //     const korisnik = {

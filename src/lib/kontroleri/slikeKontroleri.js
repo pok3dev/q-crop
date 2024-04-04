@@ -7,6 +7,7 @@ const fs = require("fs");
 const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {
+  console.log(file);
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
   } else {
@@ -20,6 +21,7 @@ const upload = multer({
 });
 
 exports.filterSlike = catchAsync(async (req, res, next) => {
+  console.log(req.file);
   if (!req.file) return next();
   console.log(req.file.originalname.split(".")[0]);
   await sharp(req.file.buffer)

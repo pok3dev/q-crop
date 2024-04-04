@@ -1,5 +1,6 @@
 const express = require("express");
 const projektiKontroleri = require("../kontroleri/projektiKontroleri");
+const slikeKontroleri = require("../kontroleri/slikeKontroleri");
 
 const projektiRuter = express.Router();
 
@@ -19,6 +20,10 @@ projektiRuter.patch(
   "/projekti/sacuvajProjekat",
   projektiKontroleri.sacuvajProjekat
 );
-projektiRuter.patch("/projekti/sacuvajSliku", projektiKontroleri.sacuvajSliku);
+projektiRuter.patch(
+  "/projekti/sacuvajSliku",
+  slikeKontroleri.postaviSliku,
+  slikeKontroleri.filterSlike
+);
 
 module.exports = projektiRuter;
