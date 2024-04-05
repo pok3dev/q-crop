@@ -60,36 +60,36 @@ const Registracija = () => {
       >
         <input
           placeholder="Unesite ime"
-          className="p-4 bg-white h-16 rounded-xl text-black"
+          className="p-4 bg-white h-14 sm:h-16 rounded-xl text-black"
           name="ime"
         ></input>
         <input
           placeholder="Unesite mejl"
-          className="p-4 bg-white h-16 rounded-xl text-black"
+          className="p-4 bg-white h-14 sm:h-16 rounded-xl text-black"
           name="mejl"
         ></input>
         <input
           placeholder="Unesite šifru"
-          className="p-4 bg-white h-16 rounded-xl text-black"
+          className="p-4 bg-white h-14 sm:h-16 rounded-xl text-black"
           name="šifra"
           type="password"
         ></input>
         <input
           placeholder="Ponovite šifru"
-          className="p-4 bg-white h-16 rounded-xl text-black"
+          className="p-4 bg-white h-14 sm:h-16 rounded-xl text-black"
           name="šifraPotvrda"
           type="password"
         ></input>
-        <button className="bg-green-300 p-6 font-bold rounded-2xl ">
+        <button className="bg-green-300 p-4 sm:p-6 font-bold rounded-2xl ">
           Registruj se
         </button>
       </form>
-      <p className="text-white text-center mt-4 -mb-4">
+      <p className="text-white text-center text-sm sm:text-lg -mt-4 -mb-8 sm:mt-4 sm:-mb-4">
         Vrati se nazad u slučaju da već imaš nalog.
       </p>
       <Link
         href="/login"
-        className="bg-gray-600 p-6 font-bold rounded-2xl text-white text-center"
+        className="bg-gray-600 p-4 sm:p-6 font-bold rounded-2xl text-white text-center"
       >
         Vrati se
       </Link>

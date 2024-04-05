@@ -132,7 +132,6 @@ const Slika = () => {
 
     if (prethodnoStanje === "") setPrethodnoStanje(`/slike/${slika}`);
     else setPrethodnoStanje(document.getElementById("slika").src);
-    console.log(prethodnoStanje);
 
     document.getElementById("slika").src = cropper
       .getCroppedCanvas()
@@ -204,31 +203,36 @@ const Slika = () => {
       body: JSON.stringify(podaci),
     });
 
-    const file = dataURLtoBlob(
-      cropperRef.current?.cropper.getCroppedCanvas().toDataURL("image/png")
-    );
-    console.log(file);
-    const formData = new FormData();
-    formData.append("slika", file, "foto_0934.jpg");
-    for (var key of formData.entries()) {
-      console.log(key[0] + ", " + key[1]);
-    }
+    if (prethodnoStanje != "") {
+      const file = dataURLtoBlob(
+        cropperRef.current?.cropper.getCroppedCanvas().toDataURL("image/png")
+      );
+      console.log(file);
+      const formData = new FormData();
+      formData.append("slika", file, "foto_0934.jpg");
+      for (var key of formData.entries()) {
+        console.log(key[0] + ", " + key[1]);
+      }
 
-    const url2 = await fetch("http://localhost:3001/projekti/sacuvajSliku", {
-      method: "PATCH",
-      redirect: "follow",
-      headers: {
-        // "Content-Type": "multipart/form-data",
-      },
-      body: formData,
-    });
+      const url2 = await fetch("http://localhost:3001/projekti/sacuvajSliku", {
+        method: "PATCH",
+        redirect: "follow",
+        headers: {
+          // "Content-Type": "multipart/form-data",
+        },
+        body: formData,
+      });
+    }
 
     const res = await url.json();
     if (res.status === "Uspješno") {
-      const res2 = await url2.json();
-      if (res2.status === "Uspješno") {
-        setPorukaGreske("Uspješno sačuvan projekat");
-      } else return setPorukaGreske(res2.poruka);
+      // Ako mora sačuvati sliku
+      if (prethodnoStanje != "") {
+        const res2 = await url2.json();
+        if (res2.status === "Uspješno") {
+          setPorukaGreske("Uspješno sačuvan projekat");
+        } else return setPorukaGreske(res2.poruka);
+      } else setPorukaGreske("Uspješno sačuvan projekat");
     } else return setPorukaGreske(res.poruka);
   };
 

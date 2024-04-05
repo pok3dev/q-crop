@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 const Navbar = () => {
   return (
-    <div className="flex w-full justify-between py-6 px-12 align-middle text-white bg-slate-800 mb-6">
+    <div className="absolute flex w-full justify-between py-6 px-12 align-middle text-white bg-slate-800 mb-6">
       {/* Naziv aplikacije */}
       <h1 className="absolute left-[50%] -translate-x-[50%] text-3xl font-bold ">
         qCrop

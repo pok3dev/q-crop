@@ -18,7 +18,7 @@ const Footer = () => {
   };
   // Vizualizacija
   return (
-    <div className="mt-[6vh] flex gap-4 justify-center align-middle w-full h-20">
+    <div className="fixed bottom-[4vh] flex gap-4 justify-center align-middle w-full h-20">
       {/* Dugmici koji se podrazumjevano prikazuju */}
       {!uredjivanjeSPrijateljima && (
         <button
@@ -29,10 +29,11 @@ const Footer = () => {
         </button>
       )}
       {!uredjivanjeSPrijateljima && (
-        <Link href="/nova-slika">
-          <button className=" bg-green-300 p-6 font-bold rounded-2xl ">
-            Novi projekat
-          </button>
+        <Link
+          href="/nova-slika"
+          className="bg-green-300 p-6 font-bold rounded-2xl flex justify-center items-center"
+        >
+          <button className="">Novi projekat</button>
         </Link>
       )}
 

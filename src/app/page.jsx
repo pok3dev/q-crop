@@ -38,13 +38,15 @@ const Pocetna = () => {
     dohvatiProjekte();
   });
   return (
-    <>
+    <div className="overflow-scroll sm:overflow-hidden">
       <Navbar />
       <main className="flex flex-col gap-12 text-white">
         {/* Dobrodošlica */}
-        <h1 className="ml-12 text-xl">Dobrodošao/la, Marko</h1>
+        <h1 className="ml-12 text-xl absolute top-[8rem]">
+          Dobrodošao/la, Marko
+        </h1>
         {/* Pretraga i sortiranje */}
-        <div className="flex px-10 w-[596px] md:w-[640px] lg:w-[768px] gap-8 ">
+        <div className="flex px-10 w-[596px] md:w-[640px] lg:w-[768px] gap-8 absolute top-[12rem]">
           <button className="flex flex-col justify-items-center align-middle">
             <Strelica klase={`w-8 h-8`} />
             <h2>Datum</h2>
@@ -55,7 +57,7 @@ const Pocetna = () => {
           ></input>
         </div>
         {/* Projekti */}
-        <div className="flex px-10 gap-6">
+        <div className="flex justify-start px-10 mt-[18rem] gap-6 flex-none w-max overflow-scroll sm:flex-wrap sm:w-auto sm:overflow-hidden ">
           {projekti.map((item) => (
             <Kartica
               key={item.id}
@@ -69,7 +71,7 @@ const Pocetna = () => {
       </main>
       {/* Podnozje sa dugmicima zapocinjanja projekta */}
       <Footer />
-    </>
+    </div>
   );
 };
 
