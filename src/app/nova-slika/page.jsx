@@ -78,7 +78,7 @@ const NovaSlika = () => {
       <Navbar />
       {/* Alert komponenta */}
       {porukaGreske && <Alert poruka={porukaGreske} setter={setPorukaGreske} />}
-      <div className="w-[60vw] mx-auto rounded-xl bg-slate-800 text-white p-4 flex items-center justify-center gap-4 mb-4">
+      <div className="w-[60vw] mx-auto rounded-xl bg-slate-800 text-white p-4 flex items-center justify-center gap-4 mb-4 mt-32">
         <h1 className="text-xl">1. Naziv projekta: </h1>
         <input
           className="text-xl bg-transparent p-2 border-b-2 focus:outline-none hover:scale-105 transition-all duration-300"

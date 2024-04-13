@@ -8,18 +8,19 @@ import Efekti from "@/komponente/ikone/Efekti";
 import Izrezi from "@/komponente/ikone/Izrezi";
 import Reset from "@/komponente/ikone/Reset";
 import Svjetlo from "@/komponente/ikone/Svjetlo";
-
-import Cropper from "react-cropper";
-import "cropperjs/dist/cropper.css";
-
 import { useEffect, useRef, useState } from "react";
 import Sacuvaj from "@/komponente/ikone/Sacuvaj";
 import Preuzmi from "@/komponente/ikone/Preuzmi";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
+// import Image from "next/image";
 import Alert from "@/komponente/Alert";
-import { useRouter } from "next/navigation";
+import Strelica from "@/komponente/ikone/Strelica";
+import Obriši from "@/komponente/ikone/Obriši";
+
+import Cropper from "react-cropper";
+import "cropperjs/dist/cropper.css";
+import domtoimage from "dom-to-image";
 
 const Slika = () => {
   const [porukaGreske, setPorukaGreske] = useState("");
@@ -209,7 +210,7 @@ const Slika = () => {
       );
       console.log(file);
       const formData = new FormData();
-      formData.append("slika", file, "foto_0934.jpg");
+      formData.append("slika", file, slika);
       for (var key of formData.entries()) {
         console.log(key[0] + ", " + key[1]);
       }
@@ -236,6 +237,46 @@ const Slika = () => {
     } else return setPorukaGreske(res.poruka);
   };
 
+  const handlePreuzmi = async () => {
+    let node = document.getElementById("slika");
+    console.log(node);
+    domtoimage
+      .toJpeg(node)
+      .then(function (dataUrl) {
+        var link = document.createElement("a");
+        link.download = "my-image-name.jpeg";
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch(function (error) {
+        console.error("oops, something went wrong!", error);
+      });
+  };
+
+  const handleIzbriši = async () => {
+    const podaci = {
+      id: pathname.split("/")[2],
+      idKorisnika: 27,
+    };
+
+    const url = await fetch("http://localhost:3001/projekti/izbrisiProjekat", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(podaci),
+    });
+
+    const res = await url.json();
+    console.log(res);
+    if (res.status === "Uspješno") {
+      setPorukaGreske("Uspješno izbrisan projekat");
+      router.push(`/`);
+    } else {
+      setPorukaGreske(res.poruka);
+    }
+  };
+
   const handleMouseDown = () => {
     document.querySelector("#slika").style.filter = "";
     document.querySelector(".tip").style.display = "none";
@@ -256,26 +297,51 @@ const Slika = () => {
       {/* Alert komponenta */}
       {porukaGreske && <Alert poruka={porukaGreske} setter={setPorukaGreske} />}
       <span className="flex justify-between items-center text-white py-6 px-12 bg-slate-800">
-        <button className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:scale-105 group">
-          <Preuzmi
+        <Link
+          href="/"
+          className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:scale-105 group"
+        >
+          <Strelica
             velicina={512}
-            klase={`w-6 z-50 transition-all duration-300 group-hover:translate-y-1`}
+            klase={`w-6 z-50 transition-all duration-300 group-hover:-translate-x-1 -rotate-90`}
           />
-          <h1>Preuzmi</h1>
-        </button>
+          <h1>Nazad</h1>
+        </Link>
         <Link href="/">
-          <h1 className="font-bold text-3xl" title="Vrati se nazad">
+          <h1
+            className="font-bold text-3xl absolute top-8 left-1/2 -translate-x-1/2"
+            title="Vrati se nazad"
+          >
             qCrop
           </h1>
         </Link>
-        <button className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:scale-105 group">
-          <Sacuvaj
-            velicina={512}
-            klase={`w-6 z-50 transition-all duration-300 group-hover:translate-y-1`}
-            cb={handleSacuvaj}
-          />
-          <h1>Sačuvaj</h1>
-        </button>
+        <div className="flex gap-10">
+          <button
+            className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:text-red-400 group"
+            onClick={handleIzbriši}
+          >
+            <Obriši velicina={512} klase={`w-6 z-50`} />
+            <h1>Obriši</h1>
+          </button>
+          <button
+            className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:scale-105 group"
+            onClick={handlePreuzmi}
+          >
+            <Preuzmi
+              velicina={512}
+              klase={`w-6 z-50 transition-all duration-300 group-hover:translate-y-1`}
+            />
+            <h1>Preuzmi</h1>
+          </button>
+          <button className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:scale-105 group">
+            <Sacuvaj
+              velicina={512}
+              klase={`w-6 z-50 transition-all duration-300 group-hover:translate-y-1`}
+              cb={handleSacuvaj}
+            />
+            <h1>Sačuvaj</h1>
+          </button>
+        </div>
       </span>
       <div className=" flex flex-col justify-between align-middle h-[87vh] ">
         <div

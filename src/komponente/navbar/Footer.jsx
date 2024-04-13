@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import Alert from "../Alert";
+import Dodaj from "../ikone/Dodaj";
+import Covjek from "../ikone/Covjek";
 
 const Footer = () => {
   // State hookovi - služe za prikazivanje sekcije za uredjivanje s prijateljima
@@ -18,22 +20,28 @@ const Footer = () => {
   };
   // Vizualizacija
   return (
-    <div className="fixed bottom-[4vh] flex gap-4 justify-center align-middle w-full h-20">
+    <div className="fixed right-[-22vw] sm:right-[-32vw] md:translate-x-[0vw] bottom-[4vh] flex gap-4 justify-center align-middle w-full h-20">
       {/* Dugmici koji se podrazumjevano prikazuju */}
       {!uredjivanjeSPrijateljima && (
-        <button
-          className=" bg-green-100 p-6 font-bold rounded-2xl"
-          onClick={handleUrediSPrijateljem}
-        >
-          Uredi s prijateljem
-        </button>
+        <div className="bg-green-100 p-6 md:4 lg:p-6 font-bold rounded-full md:rounded-2xl flex justify-center items-center shadow-xl">
+          <Covjek velicina={512} klase={`w-8 md:mr-2 lg:mr-4`} />
+          <button
+            className="text-sm hidden md:block lg:text-md "
+            onClick={handleUrediSPrijateljem}
+          >
+            Uredi s prijateljem
+          </button>
+        </div>
       )}
       {!uredjivanjeSPrijateljima && (
         <Link
           href="/nova-slika"
-          className="bg-green-300 p-6 font-bold rounded-2xl flex justify-center items-center"
+          className="bg-green-300 p-6 md:4 lg:p-6 font-bold rounded-full md:rounded-2xl flex justify-center items-center shadow-xl"
         >
-          <button className="">Novi projekat</button>
+          <Dodaj velicina={512} klase={`w-8 md:mr-2 lg:mr-4 `} />
+          <button className="text-sm hidden md:block lg:text-md ">
+            Novi projekat
+          </button>
         </Link>
       )}
 

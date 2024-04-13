@@ -25,5 +25,8 @@ projektiRuter.patch(
   slikeKontroleri.postaviSliku,
   slikeKontroleri.filterSlike
 );
-
+projektiRuter.delete(
+  "/projekti/izbrisiProjekat",
+  projektiKontroleri.izbrišiProjekat
+);
 module.exports = projektiRuter;

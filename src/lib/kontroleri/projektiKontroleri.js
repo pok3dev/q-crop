@@ -3,6 +3,22 @@ const { catchAsync } = require("../alati/catchAsync");
 const fs = require("fs");
 const { error } = require("console");
 
+// const sql = (req, query) => {
+//   db.query(query, (error, rezultatiProjekata) => {
+//     if (error) {
+//       res.status(400).json({
+//         status: "Greška",
+//         poruka: error.message,
+//       });
+//     } else {
+//       res.status(200).json({
+//         status: "Uspješno",
+//         projekti: rezultatiProjekata,
+//       });
+//     }
+//   });
+// }
+
 exports.dohvatiProjekte = (req, res, next) => {
   const idKorisnika = req.body.idKorisnika;
   if (!idKorisnika) throw new Error("Nesto nije u redu...");
@@ -127,6 +143,69 @@ exports.sacuvajProjekat = (req, res, next) => {
       });
   });
 };
+
+exports.izbrišiProjekat = (req, res, next) => {
+  const projekat = req.body;
+  // Određivanje slike
+  const querySlika = `select slika from slike where id = ${projekat.id}`;
+  db.query(querySlika, (error, results) => {
+    if (results.length === 0) throw new Error("Projekat ne postoji");
+    projekat.slika = results[0].slika;
+    console.log("CHECKPOINT: 1");
+    // Brisanje tablice projekta
+    const queryProjekat = `delete from slike where id = ${projekat.id} AND id_korisnika = ${projekat.idKorisnika};`;
+    db.query(queryProjekat, (error, results) => {
+      if (error) {
+        res.status(400).json({
+          status: "Greška",
+          poruka: error.message,
+        });
+      } else {
+        console.log("CHECKPOINT: 2");
+        // Brisanje tablice filtera
+        const queryFilteri = `delete from filteri where id_slike = ${projekat.id};`;
+        db.query(queryFilteri, (error, results) => {
+          if (error) {
+            res.status(400).json({
+              status: "Greška",
+              poruka: error.message,
+            });
+          } else {
+            console.log("CHECKPOINT: 3");
+            // Brisanje slike
+            fs.unlink(`../../public/slike/${projekat.slika}`, (err) => {
+              if (err) {
+                res.status(400).json({
+                  status: "Greška",
+                  poruka: err.message,
+                });
+              } else {
+                res.status(201).json({
+                  status: "Uspješno",
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+  });
+
+  // db.query(query, (error, results) => {
+  //   console.log(results);
+  //   if (error) {
+  //     res.status(400).json({
+  //       status: "Greška",
+  //       poruka: error.message,
+  //     });
+  //   } else
+  //     res.status(200).json({
+  //       status: "Uspješno",
+  //       projekat: results,
+  //     });
+  // });
+};
+
 exports.sacuvajSliku = async (req, res, next) => {
   console.log(req);
   if (!req.file)
