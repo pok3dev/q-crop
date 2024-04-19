@@ -24,11 +24,14 @@ import domtoimage from "dom-to-image";
 
 const Slika = () => {
   const [porukaGreske, setPorukaGreske] = useState("");
+  const [ucitavanjeSlike, setUcitavanjeSlike] = useState(true);
+
   const [menu, setMenu] = useState(false);
   const [sekcija, setSekcija] = useState(-1);
   const [rezanje, setRezanje] = useState(false);
+
   const [slika, setSlika] = useState("");
-  const [ucitavanjeSlike, setUcitavanjeSlike] = useState(true);
+  const [imeProjekta, setImeProjekta] = useState("");
 
   const pathname = usePathname();
 
@@ -105,27 +108,20 @@ const Slika = () => {
 
   const cropperRef = useRef(null);
 
+  const [prethodnoStanje, setPrethodnoStanje] = useState("");
+  const [jedinicaSkaliranja, setJedinicaSkaliranja] = useState(1);
+
   const onCrop = () => {
     const cropper = cropperRef.current?.cropper;
+    const el = document.querySelector(".rezanje");
+    if (jedinicaSkaliranja !== 1) {
+      el.classList.add("centriraj");
+      el.style.transform = `translate(-50%,-50%) scale(${jedinicaSkaliranja})`;
+    } else {
+      document.getElementById("slika").classList.remove("centriraj");
+    }
     postaviFiltere();
   };
-
-  function dataURLtoBlob(dataURL) {
-    let array, binary, i, len;
-    binary = atob(dataURL.split(",")[1]);
-    array = [];
-    i = 0;
-    len = binary.length;
-    while (i < len) {
-      array.push(binary.charCodeAt(i));
-      i++;
-    }
-    return new Blob([new Uint8Array(array)], {
-      type: "image/png",
-    });
-  }
-
-  const [prethodnoStanje, setPrethodnoStanje] = useState("");
 
   const handleIzreži = () => {
     const cropper = cropperRef.current?.cropper;
@@ -133,6 +129,8 @@ const Slika = () => {
 
     if (prethodnoStanje === "") setPrethodnoStanje(`/slike/${slika}`);
     else setPrethodnoStanje(document.getElementById("slika").src);
+    const skala = 400 / cropper.getCroppedCanvas().height;
+    setJedinicaSkaliranja(skala.toFixed(2));
 
     document.getElementById("slika").src = cropper
       .getCroppedCanvas()
@@ -156,8 +154,11 @@ const Slika = () => {
       }),
     });
     const res = await url.json();
+    console.log("test");
     if (res.status === "Uspješno" && res.projekat.length != 0) {
-      setSlika(res.projekat[0].slika);
+      setSlika(res.projekat[0]?.slika);
+      console.log(res.projekat[0]);
+      setImeProjekta(res.projekat[0]?.ime_projekta);
       setUcitavanjeSlike(false);
       setFilteri({ ...res.filteri[0] });
     } else return setPorukaGreske(res.poruka);
@@ -208,7 +209,6 @@ const Slika = () => {
       const file = dataURLtoBlob(
         cropperRef.current?.cropper.getCroppedCanvas().toDataURL("image/png")
       );
-      console.log(file);
       const formData = new FormData();
       formData.append("slika", file, slika);
       for (var key of formData.entries()) {
@@ -244,7 +244,7 @@ const Slika = () => {
       .toJpeg(node)
       .then(function (dataUrl) {
         var link = document.createElement("a");
-        link.download = "my-image-name.jpeg";
+        link.download = imeProjekta + "-download.jpeg";
         link.href = dataUrl;
         link.click();
       })
@@ -343,9 +343,9 @@ const Slika = () => {
           </button>
         </div>
       </span>
-      <div className=" flex flex-col justify-between align-middle h-[87vh] ">
+      <div className="relative flex flex-col justify-center align-middle h-[100vh] -translate-y-24">
         <div
-          className="relative mx-auto w-[60vw] h-[600px] bg-transparent pt-[3.75rem]"
+          className=" flex items-center justify-center mx-auto w-[60vw] h-[600px] bg-transparent pt-[10rem]  mb-[26vh] "
           // onMouseDown={handleMouseDown}
           // onMouseUp={handleMouseUp}
         >
@@ -362,7 +362,7 @@ const Slika = () => {
             <div className="absolute w-[60vw] h-[480px] bg-black hover:opacity-40 cursor-pointer opacity-0 group-hover:opacity-50 z-20  transition-all duration-300"></div>
           </div>
           <div className="flex flex-col items-center justify-between gap-1">
-            <div className="relative max-h-[60vh] overflow-hidden">
+            <div className="relative max-h-[60vh] h-[400px] overflow-hidden">
               <>
                 {ucitavanjeSlike && (
                   <h1 className="text-white text-2xl mt-[25vh]">
@@ -374,7 +374,7 @@ const Slika = () => {
                     id="slika"
                     src={`/slike/${slika}`}
                     alt="editovana-slika"
-                    className="max-h-[60vh]"
+                    className="h-[400px]"
                   ></img>
                 )}
               </>
@@ -384,7 +384,7 @@ const Slika = () => {
                   // src={`/slike/${slika}`}
                   src={document.getElementById("slika").src}
                   style={{ filter: filteriObj.filter }}
-                  className="absolute max-h-[60vh] top-0 left-0 z-70"
+                  className={`rezanje absolute top-0 left-0 max-h-[60vh]`}
                   guides={false}
                   crop={onCrop}
                   ref={cropperRef}
@@ -393,7 +393,7 @@ const Slika = () => {
             </div>
             {rezanje && (
               <button
-                className="font-bold w-32 bg-slate-800 px-8 py-4 mt-4 text-white rounded-md"
+                className="absolute px-8 py-4 bottom-[14vh] font-bold w-32 bg-slate-800 text-white rounded-md"
                 onClick={handleIzreži}
               >
                 IZREŽI
@@ -401,7 +401,7 @@ const Slika = () => {
             )}
             {!rezanje && prethodnoStanje != "" && (
               <button
-                className="font-bold w-32 bg-slate-800 px-8 py-4 mt-4 text-white rounded-md"
+                className="absolute px-8 py-4 bottom-0 font-bold w-32 bg-slate-800 text-white rounded-md"
                 onClick={handlePoništi}
               >
                 PONIŠTI

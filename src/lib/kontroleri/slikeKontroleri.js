@@ -26,6 +26,7 @@ exports.filterSlike = catchAsync(async (req, res, next) => {
   console.log(req.file.originalname.split(".")[0]);
   await sharp(req.file.buffer)
     .toFormat("jpeg")
+    .resize(500)
     .jpeg({ quality: 90 })
     .toFile(`../../public/slike/${req.file.originalname.split(".")[0]}.jpeg`);
 

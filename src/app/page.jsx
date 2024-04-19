@@ -59,7 +59,6 @@ const Pocetna = () => {
     }
   };
   const pretragaCB = (e) => {
-    console.log(projekti);
     e.target.value !== "" ? setPretrazivanje(true) : setPretrazivanje(false);
     const pretraga = e.target.value;
     const pretrazeniProjekti = projekti.filter((item) =>
