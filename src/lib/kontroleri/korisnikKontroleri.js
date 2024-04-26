@@ -5,8 +5,7 @@ const jwt = require("jsonwebtoken");
 
 const kreirajToken = (korisnik, statusKod, req, res) => {
   // 1. Kreiranje tokena
-  console.log("CHECKPOINT 1");
-  const id = korisnik.id;
+  const id = korisnik[0].id;
   const token = jwt.sign({ id }, process.env.JWT_TAJNA, {
     expiresIn: process.env.JWT_ROK + "d",
   });
@@ -17,7 +16,6 @@ const kreirajToken = (korisnik, statusKod, req, res) => {
     secure: true,
     sameSite: "none",
   });
-  console.log("CHECKPOINT 2");
   // 3. Json odgovor
   res.status(statusKod).json({
     status: "Uspješno",
@@ -65,7 +63,40 @@ exports.dohvatiKorisnika = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.jelUlogovan = catchAsync(async (req, res, next) => {});
+exports.jelUlogovan = catchAsync(async (req, res, next) => {
+  if (req.cookies.jwt) {
+    // 1. Desifruj token
+    const dekodiran = await jwt.verify(req.cookies.jwt, process.env.JWT_TAJNA);
+    // 2. Ako postoji, vrati korisnika
+    if (dekodiran) {
+      const query = `select * from korisnici where id="${dekodiran.id}"`;
+      console.log("AKTIVIRAN");
+      db.query(query, (error, results) => {
+        if (results.length === 0) {
+          res.status(400).json({
+            status: "Greška",
+            poruka: "Korisnik više ne postoji...",
+          });
+        } else {
+          res.status(200).json({
+            status: "Uspješno",
+            korisnik: results[0],
+          });
+        }
+      });
+    } else {
+      res.status(404).json({
+        status: "Greška",
+        poruka: "Prvo se ulogujte...",
+      });
+    }
+  } else {
+    res.status(404).json({
+      status: "Greška",
+      poruka: "Prvo se ulogujte...",
+    });
+  }
+});
 
 exports.registrujKorisnika = catchAsync(async (req, res, next) => {
   const korisnik = {

@@ -1,6 +1,6 @@
 import "@/app/globals.css";
 
-const Navbar = () => {
+const Navbar = ({ imePrezime }) => {
   return (
     <div className="absolute top-0 flex w-full justify-between py-6 px-12 align-middle text-white bg-slate-800 mb-6">
       {/* Naziv aplikacije */}
@@ -9,7 +9,7 @@ const Navbar = () => {
       </h1>
       {/* Opcije korisnika */}
       <span className="ml-auto flex align-middle gap-8">
-        <h2 className="hidden md:block py-2 ">Marko Marendovic</h2>
+        <h2 className="hidden md:block py-2 ">{imePrezime}</h2>
         <div className="rounded-full h-10 w-10 inline-block bg-white"></div>
       </span>
     </div>
