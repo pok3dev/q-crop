@@ -61,7 +61,6 @@ exports.kreirajProjekat = (req, res, next) => {
     }
     // Kreiranje filtera u bazi podataka [1, 1, 0, 1, 0],[0, 0, 1, 1],
     const id = results.insertId;
-    console.log(id);
     const podrazumjevano = {
       svjetlost: 1,
       kontrast: 1,
@@ -97,7 +96,6 @@ exports.kreirajProjekat = (req, res, next) => {
 exports.dohvatiProjekat = (req, res, next) => {
   const id = req.body.id;
   if (!id) throw new Error("Nesto nije u redu...");
-  console.log(id);
   const queryProjekat = `select * from slike where id=${id}`;
   db.query(queryProjekat, (error, rezultatiProjetka) => {
     if (error) {
@@ -122,7 +120,6 @@ exports.dohvatiProjekat = (req, res, next) => {
 };
 exports.sacuvajProjekat = (req, res, next) => {
   const projekat = req.body;
-  console.log(projekat);
   for (const [key, value] of Object.entries(projekat)) {
     if (key != "id" && (value > 2 || value < 0))
       throw new Error("Vrijendosti nisu ispravne");
@@ -151,7 +148,6 @@ exports.izbrišiProjekat = (req, res, next) => {
   db.query(querySlika, (error, results) => {
     if (results.length === 0) throw new Error("Projekat ne postoji");
     projekat.slika = results[0].slika;
-    console.log("CHECKPOINT: 1");
     // Brisanje tablice projekta
     const queryProjekat = `delete from slike where id = ${projekat.id} AND id_korisnika = ${projekat.idKorisnika};`;
     db.query(queryProjekat, (error, results) => {
@@ -161,7 +157,6 @@ exports.izbrišiProjekat = (req, res, next) => {
           poruka: error.message,
         });
       } else {
-        console.log("CHECKPOINT: 2");
         // Brisanje tablice filtera
         const queryFilteri = `delete from filteri where id_slike = ${projekat.id};`;
         db.query(queryFilteri, (error, results) => {
@@ -171,7 +166,6 @@ exports.izbrišiProjekat = (req, res, next) => {
               poruka: error.message,
             });
           } else {
-            console.log("CHECKPOINT: 3");
             // Brisanje slike
             fs.unlink(`../../public/slike/${projekat.slika}`, (err) => {
               if (err) {
@@ -192,7 +186,6 @@ exports.izbrišiProjekat = (req, res, next) => {
   });
 
   // db.query(query, (error, results) => {
-  //   console.log(results);
   //   if (error) {
   //     res.status(400).json({
   //       status: "Greška",
@@ -207,12 +200,10 @@ exports.izbrišiProjekat = (req, res, next) => {
 };
 
 exports.sacuvajSliku = async (req, res, next) => {
-  console.log(req);
   if (!req.file)
     return res.status(400).json({
       status: "Greška",
     });
-  console.log(req.file);
   // await sharp(req.file.buffer)
   //   .toFormat("jpeg")
   //   .jpeg({ quality: 90 })

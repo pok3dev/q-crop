@@ -4,6 +4,7 @@ const korisnikKontroleri = require("../kontroleri/korisnikKontroleri");
 const korisnikRuter = express.Router();
 
 korisnikRuter.get("/korisnik/jelUlogovan", korisnikKontroleri.jelUlogovan);
+korisnikRuter.get("/korisnik/odjava", korisnikKontroleri.odjava);
 korisnikRuter.post(
   "/korisnik/dohvatiKorisnika",
   korisnikKontroleri.dohvatiKorisnika

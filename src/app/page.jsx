@@ -56,7 +56,6 @@ const Pocetna = () => {
 
       const res = await req.json();
 
-      console.log(res);
       if (res.status == "Uspješno") {
         setIdKorisnika(res.korisnik.id);
         setImePrezime(
@@ -93,11 +92,25 @@ const Pocetna = () => {
 
     setPretraga(pretrazeniProjekti);
   };
+  // 6. Funkcija za odjavljivanje
+  const handleOdjava = async () => {
+    console.log(123);
+    const req = await fetch("http://localhost:3001/korisnik/odjava", {
+      method: "GET",
+      redirect: "follow",
+      credentials: "include", // Don't forget to specify this if you need cookies
+    });
+
+    const res = await req.json();
+    if (res.status == "Uspješno") {
+      navigate.replace("/login");
+    }
+  };
   return (
     <>
       {!provjera && (
         <div className="overflow-x-scroll sm:overflow-x-hidden h-[100vh]">
-          <Navbar imePrezime={imePrezime} />
+          <Navbar imePrezime={imePrezime} cb={handleOdjava} />
           <main className="flex flex-col gap-12 text-white h-[100vh]">
             {/* Dobrodošlica */}
             <h1 className="text-md sm:text-xl absolute left-6 top-[7rem] sm:left-12 sm:top-[8rem]">
@@ -135,6 +148,7 @@ const Pocetna = () => {
                   <Kartica
                     key={item.id}
                     id={item.id}
+                    idKorisnika={idKorisnika}
                     naziv={item.imeProjekta}
                     slika={item.slika}
                     datum={item.datumKreiranja}
@@ -146,6 +160,7 @@ const Pocetna = () => {
                   <Kartica
                     key={item.id}
                     id={item.id}
+                    idKorisnika={idKorisnika}
                     naziv={item.imeProjekta}
                     slika={item.slika}
                     datum={item.datumKreiranja}

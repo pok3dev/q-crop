@@ -299,12 +299,9 @@ const Slika = () => {
       <span className="flex justify-between items-center text-white py-6 px-12 bg-slate-800">
         <Link
           href="/"
-          className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:scale-105 group"
+          className="flex flex-col gap-1 justify-center items-center group"
         >
-          <Strelica
-            velicina={512}
-            klase={`w-6 z-50 transition-all duration-300 group-hover:-translate-x-1 -rotate-90`}
-          />
+          <Strelica velicina={512} klase={`w-6 z-50  -rotate-90`} />
           <h1>Nazad</h1>
         </Link>
         <Link href="/">
@@ -324,21 +321,14 @@ const Slika = () => {
             <h1>Obriši</h1>
           </button>
           <button
-            className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:scale-105 group"
+            className="flex flex-col gap-1 justify-center items-center group"
             onClick={handlePreuzmi}
           >
-            <Preuzmi
-              velicina={512}
-              klase={`w-6 z-50 transition-all duration-300 group-hover:translate-y-1`}
-            />
+            <Preuzmi velicina={512} klase={`w-6 z-50`} />
             <h1>Preuzmi</h1>
           </button>
-          <button className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:scale-105 group">
-            <Sacuvaj
-              velicina={512}
-              klase={`w-6 z-50 transition-all duration-300 group-hover:translate-y-1`}
-              cb={handleSacuvaj}
-            />
+          <button className="flex flex-col gap-1 justify-center items-center group">
+            <Sacuvaj velicina={512} klase={`w-6 z-50`} cb={handleSacuvaj} />
             <h1>Sačuvaj</h1>
           </button>
         </div>

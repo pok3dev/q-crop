@@ -20,9 +20,7 @@ const Login = () => {
 
       const res = await req.json();
 
-      console.log(res);
       if (res.status == "Uspješno") {
-        console.log(res.status);
         navigate.replace("/");
       } else {
         setProvjera(false);
@@ -48,8 +46,6 @@ const Login = () => {
       }),
     });
     const res = await req.json();
-    console.log(res);
-    console.log(res);
     if (res.status == "Uspješno") {
       navigate.replace("/");
     }

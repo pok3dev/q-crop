@@ -63,6 +63,18 @@ exports.dohvatiKorisnika = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.odjava = catchAsync(async (req, res, next) => {
+  res.cookie("jwt", "odjava", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: false,
+    secure: true,
+    sameSite: "none",
+  });
+  res.status(200).json({
+    status: "Uspješno",
+  });
+});
+
 exports.jelUlogovan = catchAsync(async (req, res, next) => {
   if (req.cookies.jwt) {
     // 1. Desifruj token
@@ -70,7 +82,6 @@ exports.jelUlogovan = catchAsync(async (req, res, next) => {
     // 2. Ako postoji, vrati korisnika
     if (dekodiran) {
       const query = `select * from korisnici where id="${dekodiran.id}"`;
-      console.log("AKTIVIRAN");
       db.query(query, (error, results) => {
         if (results.length === 0) {
           res.status(400).json({
