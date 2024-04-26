@@ -1,26 +1,50 @@
 const db = require("../db");
 const { catchAsync } = require("../alati/catchAsync");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const kreirajToken = (korisnik, statusKod, req, res) => {
+  // 1. Kreiranje tokena
+  console.log("CHECKPOINT 1");
+  const id = korisnik.id;
+  const token = jwt.sign({ id }, process.env.JWT_TAJNA, {
+    expiresIn: process.env.JWT_ROK + "d",
+  });
+  // 2. Kreiranje kolačića
+  res.cookie("jwt", token, {
+    expires: new Date(Date.now() + process.env.JWT_ROK * 24 * 60 * 60 * 1000),
+    httpOnly: false,
+    secure: true,
+    sameSite: "none",
+  });
+  console.log("CHECKPOINT 2");
+  // 3. Json odgovor
+  res.status(statusKod).json({
+    status: "Uspješno",
+    token,
+    korisnik,
+  });
+};
 
 exports.dohvatiKorisnika = catchAsync(async (req, res, next) => {
-  const pravaŠifraQuery = `select šifra from korisnici where mejl="${req.body.mejl}"`;
-
-  db.query(pravaŠifraQuery, async (error, results) => {
+  // 1. Izvrsavamo prvi query da vidimo postoji li mejl
+  const mejlQuery = `select šifra from korisnici where mejl="${req.body.mejl}"`;
+  db.query(mejlQuery, async (error, results) => {
     if (results.length === 0) {
       return res.status(400).json({
         status: "Greška",
         poruka: "Podaci su neispravni",
       });
     }
+    // 2. Ako mejl postoji u sistemu, vršimo provjeru šifre pomocu bcrypt paketa zbog enkripcije
     const pravaŠifra = results[0].šifra;
-
     const login = {
       mejl: req.body.mejl,
       šifra: (await bcrypt.compare(req.body.šifra, pravaŠifra))
         ? pravaŠifra
         : null,
     };
-    const query = `select ime,mejl from korisnici where mejl="${login.mejl}" AND šifra="${login.šifra}"`;
+    const query = `select id,mejl from korisnici where mejl="${login.mejl}" AND šifra="${login.šifra}"`;
     db.query(query, (error, results) => {
       if (error) {
         return res.status(400).json({
@@ -28,12 +52,9 @@ exports.dohvatiKorisnika = catchAsync(async (req, res, next) => {
           poruka: error.message,
         });
       }
+      // 3. Ako je šifra ispravna dobicemo korisnika te ćemo kreirati token
       if (results.length === 1) {
-        res.status(200).json({
-          status: "Uspješno",
-          korisnik:
-            results.length === 1 ? results[0] : "Korisnik ne postoji...",
-        });
+        kreirajToken(results, 200, req, res);
       } else {
         res.status(403).json({
           status: "Greška",
@@ -43,6 +64,8 @@ exports.dohvatiKorisnika = catchAsync(async (req, res, next) => {
     });
   });
 });
+
+exports.jelUlogovan = catchAsync(async (req, res, next) => {});
 
 exports.registrujKorisnika = catchAsync(async (req, res, next) => {
   const korisnik = {

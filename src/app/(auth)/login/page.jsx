@@ -1,18 +1,22 @@
 "use client";
-import Alert from "@/komponente/Alert";
+import Alert from "../../../komponente/Alert";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 
 const Login = () => {
   const [poruka, setPoruka] = useState("");
+  const navigate = useRouter();
   const handleLogin = async (e) => {
     e.preventDefault();
     const forma = e.target;
     if (!forma.mejl.value || !forma.šifra.value) {
-      setPoruka("Unesite sva polja.");
+      return setPoruka("Unesite sva polja.");
     }
     const req = await fetch("http://localhost:3001/korisnik/dohvatiKorisnika", {
       method: "POST",
+      credentials: "include", // Don't forget to specify this if you need cookies
       headers: {
         "Content-Type": "application/json",
       },
@@ -23,8 +27,10 @@ const Login = () => {
     });
     const res = await req.json();
     if (res.status == "Uspješno") {
-      setKorisnik(res.korisnik);
-      location.reload();
+      console.log(getCookies());
+      // setKorisnik(res.korisnik);
+      // navigate.replace("/");
+      // location.reload();
     }
     if (res.status == "Greška") {
       setPoruka(res.poruka);
