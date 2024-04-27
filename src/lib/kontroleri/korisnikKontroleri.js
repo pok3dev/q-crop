@@ -75,6 +75,33 @@ exports.odjava = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.auth = catchAsync(async (req, res, next) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
+  if (!token) throw new Error("Prijavite se....");
+  // 1. Desifruj token
+  const dekodiran = await jwt.verify(token, process.env.JWT_TAJNA);
+  // 2. Ako postoji, vrati korisnika
+  const query = `select * from korisnici where id="${dekodiran.id}"`;
+  db.query(query, (error, results) => {
+    console.log("CHECKPOINT 3: ", results.length);
+    if (results.length === 1) {
+      console.log(123);
+      req.user = results[0];
+      next();
+    } else {
+      throw new Error("Korisnik ne postoji...");
+    }
+  });
+});
+
 exports.jelUlogovan = catchAsync(async (req, res, next) => {
   if (req.cookies.jwt) {
     // 1. Desifruj token
@@ -166,7 +193,7 @@ exports.izbrišiKorisnika = catchAsync(async (req, res) => {
     else {
       return res.status(400).json({
         status: "Greška",
-        poruka: "Neispravni podaci2...",
+        poruka: "Neispravni podaci...",
       });
     }
   });

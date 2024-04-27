@@ -21,6 +21,7 @@ import Obriši from "@/komponente/ikone/Obriši";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import domtoimage from "dom-to-image";
+import izbrisiAPI from "@/funkcije/izbrisiAPI";
 
 const Slika = () => {
   const [porukaGreske, setPorukaGreske] = useState("");
@@ -259,16 +260,8 @@ const Slika = () => {
       idKorisnika: 27,
     };
 
-    const url = await fetch("http://localhost:3001/projekti/izbrisiProjekat", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(podaci),
-    });
+    const res = await izbrisiAPI();
 
-    const res = await url.json();
-    console.log(res);
     if (res.status === "Uspješno") {
       setPorukaGreske("Uspješno izbrisan projekat");
       router.push(`/`);

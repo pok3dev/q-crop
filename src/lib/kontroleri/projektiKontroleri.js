@@ -44,6 +44,7 @@ exports.kreirajProjekat = (req, res, next) => {
     nazivProjekta: req.body.nazivProjekta,
     slika: req.body.slika,
     datum: new Date().toISOString().slice(0, 19).replace("T", " "),
+    idKorisnika: req.user.id,
   };
   if (
     !projekat ||
@@ -54,7 +55,8 @@ exports.kreirajProjekat = (req, res, next) => {
     throw new Error("Korisnik nije unijeo podatke...");
   }
   // Kreiranje projekta u bazi podataka
-  const queryProjekat = `insert into slike(ime_projekta, slika, datum_kreiranja) values("${projekat.nazivProjekta}","${projekat.slika}","${projekat.datum}");`;
+  const queryProjekat = `insert into slike(ime_projekta, slika, datum_kreiranja,id_korisnika) values("${projekat.nazivProjekta}",
+  "${projekat.slika}","${projekat.datum}","${projekat.idKorisnika}");`;
   db.query(queryProjekat, (error, results) => {
     if (error) {
       return new error(error.message);

@@ -58,6 +58,7 @@ const NovaSlika = () => {
 
     const url = await fetch("http://localhost:3001/projekti/kreirajProjekat", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
