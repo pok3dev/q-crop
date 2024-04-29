@@ -2,26 +2,26 @@ const db = require("../db");
 const { catchAsync } = require("../alati/catchAsync");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { greskaRes, uspjesnoRes } = require("../alati/respones.js");
+const { useParams } = require("next/navigation");
 
 const kreirajToken = (korisnik, statusKod, req, res) => {
-  // 1. Kreiranje tokena
+  // Kreiranje tokena
   const id = korisnik[0].id;
   const token = jwt.sign({ id }, process.env.JWT_TAJNA, {
     expiresIn: process.env.JWT_ROK + "d",
   });
-  // 2. Kreiranje kolačića
+
+  // Kreiranje kolačića
   res.cookie("jwt", token, {
     expires: new Date(Date.now() + process.env.JWT_ROK * 24 * 60 * 60 * 1000),
     httpOnly: false,
     secure: true,
     sameSite: "none",
   });
-  // 3. Json odgovor
-  res.status(statusKod).json({
-    status: "Uspješno",
-    token,
-    korisnik,
-  });
+
+  const data = { token, korisnik };
+  uspjesnoRes(res, statusKod, data);
 };
 
 exports.dohvatiKorisnika = catchAsync(async (req, res, next) => {
@@ -29,11 +29,9 @@ exports.dohvatiKorisnika = catchAsync(async (req, res, next) => {
   const mejlQuery = `select šifra from korisnici where mejl="${req.body.mejl}"`;
   db.query(mejlQuery, async (error, results) => {
     if (results.length === 0) {
-      return res.status(400).json({
-        status: "Greška",
-        poruka: "Podaci su neispravni",
-      });
+      return greskaRes(res, 400, "Podaci su neispravni");
     }
+
     // 2. Ako mejl postoji u sistemu, vršimo provjeru šifre pomocu bcrypt paketa zbog enkripcije
     const pravaŠifra = results[0].šifra;
     const login = {
@@ -42,37 +40,32 @@ exports.dohvatiKorisnika = catchAsync(async (req, res, next) => {
         ? pravaŠifra
         : null,
     };
+
     const query = `select id,mejl from korisnici where mejl="${login.mejl}" AND šifra="${login.šifra}"`;
     db.query(query, (error, results) => {
       if (error) {
-        return res.status(400).json({
-          status: "Greška",
-          poruka: error.message,
-        });
+        return greskaRes(res, 400, error.message);
       }
+
       // 3. Ako je šifra ispravna dobicemo korisnika te ćemo kreirati token
       if (results.length === 1) {
         kreirajToken(results, 200, req, res);
       } else {
-        res.status(403).json({
-          status: "Greška",
-          poruka: "Podaci su neispravni",
-        });
+        greskaRes(res, 403, "Podaci su neispravni");
       }
     });
   });
 });
 
 exports.odjava = catchAsync(async (req, res, next) => {
+  // Izvrsavamo odjavljivanje jednostavnom promjenom kolacica na junk vrijednost
   res.cookie("jwt", "odjava", {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: false,
     secure: true,
     sameSite: "none",
   });
-  res.status(200).json({
-    status: "Uspješno",
-  });
+  uspjesnoRes(res, 200);
 });
 
 exports.auth = catchAsync(async (req, res, next) => {
@@ -86,14 +79,14 @@ exports.auth = catchAsync(async (req, res, next) => {
     token = req.cookies.jwt;
   }
   if (!token) throw new Error("Prijavite se....");
+
   // 1. Desifruj token
   const dekodiran = await jwt.verify(token, process.env.JWT_TAJNA);
+
   // 2. Ako postoji, vrati korisnika
   const query = `select * from korisnici where id="${dekodiran.id}"`;
   db.query(query, (error, results) => {
-    console.log("CHECKPOINT 3: ", results.length);
     if (results.length === 1) {
-      console.log(123);
       req.user = results[0];
       next();
     } else {
@@ -106,33 +99,23 @@ exports.jelUlogovan = catchAsync(async (req, res, next) => {
   if (req.cookies.jwt) {
     // 1. Desifruj token
     const dekodiran = await jwt.verify(req.cookies.jwt, process.env.JWT_TAJNA);
+
     // 2. Ako postoji, vrati korisnika
     if (dekodiran) {
       const query = `select * from korisnici where id="${dekodiran.id}"`;
       db.query(query, (error, results) => {
         if (results.length === 0) {
-          res.status(400).json({
-            status: "Greška",
-            poruka: "Korisnik više ne postoji...",
-          });
+          greskaRes(res, 404, "Korisnik vise ne postoji");
         } else {
-          res.status(200).json({
-            status: "Uspješno",
-            korisnik: results[0],
-          });
+          const korisnik = results[0];
+          uspjesnoRes(res, 200, korisnik);
         }
       });
     } else {
-      res.status(404).json({
-        status: "Greška",
-        poruka: "Prvo se ulogujte...",
-      });
+      greskaRes(res, 401, "Prvo se ulogujte...");
     }
   } else {
-    res.status(404).json({
-      status: "Greška",
-      poruka: "Prvo se ulogujte...",
-    });
+    greskaRes(res, 401, "Prvo se ulogujte...");
   }
 });
 
@@ -143,8 +126,12 @@ exports.registrujKorisnika = catchAsync(async (req, res, next) => {
     mejl: req.body.mejl,
     šifra: await bcrypt.hash(req.body.šifra, 12),
   };
+
+  // Provjeravamo da li su unijeti svi potrebni podaci
   if (!korisnik || !korisnik.ime || !korisnik.mejl || !korisnik.šifra)
     throw new Error("Korisnik nije unijeo podatke...");
+
+  // Izvrsavamo dodavanje reda u tabelu korisnika
   db.query(
     `insert into korisnici(ime,prezime,mejl,šifra) value ("${korisnik.ime}", "${korisnik.prezime}","${korisnik.mejl}","${korisnik.šifra}");`,
     (error, results) => {
@@ -152,21 +139,15 @@ exports.registrujKorisnika = catchAsync(async (req, res, next) => {
         error.message.startsWith("ER_DUP_ENTRY")
           ? (error.message = "Mejl već postoji")
           : null;
-        res.status(400).json({
-          status: "Greška",
-          poruka: error.message,
-        });
-      } else
-        res.status(200).json({
-          status: "Uspješno",
-          korisnik,
-        });
+        greskaRes(res, 400, error.message);
+      } else uspjesnoRes(res, 200, korisnik);
     }
   );
 });
 
 exports.izbrišiKorisnika = catchAsync(async (req, res) => {
   const pravaŠifraQuery = `select šifra from korisnici where mejl="${req.body.mejl}"`;
+
   db.query(pravaŠifraQuery, async (error, results) => {
     if (error || results.length === 0) {
       return res.status(400).json({
@@ -183,18 +164,12 @@ exports.izbrišiKorisnika = catchAsync(async (req, res) => {
     if (provjera)
       db.query(query, (error, results) => {
         if (error) {
-          return res.status(400).json({
-            status: "Greška",
-            poruka: error.message,
-          });
+          greskaRes(400, error.message);
         }
-        res.status(204).json({});
+        uspjesnoRes(204);
       });
     else {
-      return res.status(400).json({
-        status: "Greška",
-        poruka: "Neispravni podaci...",
-      });
+      greskaRes(400, "Neispravni podaci...");
     }
   });
 });

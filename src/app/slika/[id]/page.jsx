@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import Sacuvaj from "@/komponente/ikone/Sacuvaj";
 import Preuzmi from "@/komponente/ikone/Preuzmi";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 // import Image from "next/image";
 import Alert from "@/komponente/Alert";
 import Strelica from "@/komponente/ikone/Strelica";
@@ -22,6 +22,7 @@ import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import domtoimage from "dom-to-image";
 import izbrisiAPI from "@/funkcije/izbrisiAPI";
+import Confirm from "@/komponente/Confirm";
 
 const Slika = () => {
   const [porukaGreske, setPorukaGreske] = useState("");
@@ -113,7 +114,6 @@ const Slika = () => {
   const [jedinicaSkaliranja, setJedinicaSkaliranja] = useState(1);
 
   const onCrop = () => {
-    const cropper = cropperRef.current?.cropper;
     const el = document.querySelector(".rezanje");
     if (jedinicaSkaliranja !== 1) {
       el.classList.add("centriraj");
@@ -154,14 +154,14 @@ const Slika = () => {
         id: pathname.split("/")[2],
       }),
     });
+
     const res = await url.json();
-    console.log("test");
-    if (res.status === "Uspješno" && res.projekat.length != 0) {
-      setSlika(res.projekat[0]?.slika);
-      console.log(res.projekat[0]);
-      setImeProjekta(res.projekat[0]?.ime_projekta);
+
+    if (res.status === "Uspješno" && res.data.projekat.length != 0) {
+      setSlika(res.data.projekat[0]?.slika);
+      setImeProjekta(res.data.projekat[0]?.ime_projekta);
       setUcitavanjeSlike(false);
-      setFilteri({ ...res.filteri[0] });
+      setFilteri({ ...res.data.filteri[0] });
     } else return setPorukaGreske(res.poruka);
   };
 
@@ -250,21 +250,23 @@ const Slika = () => {
         link.click();
       })
       .catch(function (error) {
-        console.error("oops, something went wrong!", error);
+        setPorukaGreske("Nešto nije u redu...");
       });
   };
 
+  const navigate = useRouter();
+  const [potvrda, setPotvrda] = useState(false);
   const handleIzbriši = async () => {
     const podaci = {
       id: pathname.split("/")[2],
       idKorisnika: 27,
     };
 
-    const res = await izbrisiAPI();
+    const res = await izbrisiAPI(podaci);
 
+    setPotvrda(false);
     if (res.status === "Uspješno") {
-      setPorukaGreske("Uspješno izbrisan projekat");
-      router.push(`/`);
+      navigate.replace("/");
     } else {
       setPorukaGreske(res.poruka);
     }
@@ -287,6 +289,13 @@ const Slika = () => {
   const meniSekcije = ["Svjetlo", "Boje", "Efekti", "Detalji"];
   return (
     <div>
+      {potvrda && (
+        <Confirm
+          poruka={`Da li želite da obrišete projekat ${imeProjekta}?`}
+          setter={setPotvrda}
+          cb={handleIzbriši}
+        ></Confirm>
+      )}
       {/* Alert komponenta */}
       {porukaGreske && <Alert poruka={porukaGreske} setter={setPorukaGreske} />}
       <span className="flex justify-between items-center text-white py-6 px-12 bg-slate-800">
@@ -308,7 +317,7 @@ const Slika = () => {
         <div className="flex gap-10">
           <button
             className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:text-red-400 group"
-            onClick={handleIzbriši}
+            onClick={() => setPotvrda(true)}
           >
             <Obriši velicina={512} klase={`w-6 z-50`} />
             <h1>Obriši</h1>

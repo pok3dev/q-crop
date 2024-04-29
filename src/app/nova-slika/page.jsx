@@ -36,6 +36,7 @@ const NovaSlika = () => {
   const handleDelete = async (ime, event) => {
     const url = await fetch("http://localhost:3001/slike/obrisiSliku", {
       method: "DELETE",
+      redirect: "follow",
       headers: {
         "Content-Type": "application/json",
       },
@@ -43,8 +44,7 @@ const NovaSlika = () => {
         nazivSlike: ime,
       }),
     });
-    const res = await url.json();
-    if (res.status === "Uspješno") {
+    if (url.status === 204) {
       setSlika(false);
     }
   };
@@ -69,8 +69,7 @@ const NovaSlika = () => {
     });
     const res = await url.json();
     if (res.status === "Uspješno") {
-      console.log(res);
-      router.push(`/slika/${res.id}`);
+      router.push(`/slika/${res.data}`);
     } else return setPorukaGreske(res.poruka);
   };
 
@@ -96,8 +95,8 @@ const NovaSlika = () => {
           <>
             <Image
               className="p-8"
-              height={300}
-              width={400}
+              height={200}
+              width={300}
               src={`/slike/${sl.current}`}
               alt="postavljena slika"
             />
@@ -105,7 +104,7 @@ const NovaSlika = () => {
               className="bg-[#2a4657] px-8 py-4 rounded-md hover:scale-105 transition-all duration-300"
               onClick={handleDelete.bind(event, sl.current)}
             >
-              Izaberite drugu sliku
+              Obriši sliku
             </button>
           </>
         )}

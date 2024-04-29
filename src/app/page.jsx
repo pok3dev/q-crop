@@ -1,4 +1,5 @@
 "use client";
+import Confirm from "@/komponente/Confirm";
 import Kartica from "@/komponente/Kartica";
 import sistemPretrage from "@/komponente/funkcije/sistemPretrage";
 import sistemSortiranja from "@/komponente/funkcije/sistemSortiranja";
@@ -31,8 +32,9 @@ const Pocetna = () => {
     });
     const res = await url.json();
     let projektiTemp = [];
+
     // 3. Postavljanje projekata u projekti hook za prikazivanje na ekranu
-    res.projekti.forEach((element) => {
+    res.data.forEach((element) => {
       projektiTemp.push({
         id: element.id,
         imeProjekta: element.ime_projekta,
@@ -43,9 +45,11 @@ const Pocetna = () => {
     setProjekti(projektiTemp);
     setUčitavanje(false);
   };
+
   // 4. useEffect za dohvatanje projekata na inicijalnom ucitavanju stranice
   const [provjera, setProvjera] = useState(true);
   const navigate = useRouter();
+
   useEffect(() => {
     (async () => {
       const req = await fetch("http://localhost:3001/korisnik/jelUlogovan", {
@@ -57,19 +61,21 @@ const Pocetna = () => {
       const res = await req.json();
 
       if (res.status == "Uspješno") {
-        setIdKorisnika(res.korisnik.id);
+        console.log(res);
+        setIdKorisnika(res.data.id);
         setImePrezime(
-          `${res.korisnik.ime}  ${
-            res.korisnik.prezime != "null" ? res.korisnik.prezime : ""
+          `${res.data.ime}  ${
+            res.data.prezime != "null" ? res.data.prezime : ""
           }`
         );
         setProvjera(false);
-        dohvatiProjekte(res.korisnik.id);
+        dohvatiProjekte(res.data.id);
       } else {
         navigate.replace("/login");
       }
     })();
   }, []);
+
   // 5. Sortiranje pretraga
   const [opcijaSortiranja, setOpcijaSortiranja] = useState("Datum");
   const [poredak, setPoredak] = useState(true);
@@ -92,9 +98,10 @@ const Pocetna = () => {
 
     setPretraga(pretrazeniProjekti);
   };
+
   // 6. Funkcija za odjavljivanje
+  const [potvrda, setPotvrda] = useState(false);
   const handleOdjava = async () => {
-    console.log(123);
     const req = await fetch("http://localhost:3001/korisnik/odjava", {
       method: "GET",
       redirect: "follow",
@@ -105,12 +112,21 @@ const Pocetna = () => {
     if (res.status == "Uspješno") {
       navigate.replace("/login");
     }
+    setPotvrda(false);
   };
+
   return (
     <>
+      {potvrda && (
+        <Confirm
+          poruka={`Da li želite da se odjavite?`}
+          setter={setPotvrda}
+          cb={handleOdjava}
+        ></Confirm>
+      )}
       {!provjera && (
         <div className="overflow-x-scroll sm:overflow-x-hidden h-[100vh]">
-          <Navbar imePrezime={imePrezime} cb={handleOdjava} />
+          <Navbar imePrezime={imePrezime} cb={() => setPotvrda(true)} />
           <main className="flex flex-col gap-12 text-white h-[100vh]">
             {/* Dobrodošlica */}
             <h1 className="text-md sm:text-xl absolute left-6 top-[7rem] sm:left-12 sm:top-[8rem]">
