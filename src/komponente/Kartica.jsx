@@ -41,12 +41,14 @@ const Kartica = ({ id, idKorisnika, naziv, slika, datum }) => {
         ></Confirm>
       )}
       <div className="relative h-[240px] sm:h-[330px] w-[160px] sm:w-[220px] bg-transparent rounded-xl overflow-hidden drop-shadow-xl">
-        <div className="flex flex-col text-center bg-[#000000aa] mt-[170px] sm:mt-[260px] py-4 text-white z-50 group">
+        <div className="flex flex-col text-center bg-[#000000aa] mt-[175px] sm:mt-[260px] py-4 text-white z-50 group">
           <h3 className="text-sm text-white">{naziv}</h3>
-          <h6 className="text-sm">{povezanDatum}</h6>
+          <h6 className="text-gray-300 text-[10px] sm:text-sm">
+            {povezanDatum}
+          </h6>
           <Obriši
             velicina={512}
-            klase={`w-8 absolute right-5 bottom-5 opacity-20 group-hover:opacity-100 hover:cursor-pointer`}
+            klase={`w-6 sm:w-8 absolute right-5 bottom-5 opacity-100  sm:sopacity-20 sm:group-hover:opacity-100 hover:cursor-pointer`}
             cb={() => setPotvrda(true)}
           ></Obriši>
         </div>

@@ -20,9 +20,9 @@ const Footer = () => {
   };
   // Vizualizacija
   return (
-    <div className="fixed right-[-22vw] sm:right-[-32vw] md:translate-x-[0vw] bottom-[4vh] flex gap-4 justify-center align-middle w-full h-20">
+    <div className="fixed  right-12 md:translate-x-[0vw] bottom-[4vh] flex gap-4 justify-end items-end w-full h-20">
       {/* Dugmici koji se podrazumjevano prikazuju */}
-      {!uredjivanjeSPrijateljima && (
+      {/* {!uredjivanjeSPrijateljima && (
         <div className="bg-green-100 p-6 md:4 lg:p-6 font-bold rounded-full md:rounded-2xl flex justify-center items-center shadow-xl">
           <Covjek velicina={512} klase={`w-8 md:mr-2 lg:mr-4`} />
           <button
@@ -32,7 +32,7 @@ const Footer = () => {
             Uredi s prijateljem
           </button>
         </div>
-      )}
+      )} */}
       {!uredjivanjeSPrijateljima && (
         <Link
           href="/nova-slika"
@@ -46,7 +46,7 @@ const Footer = () => {
       )}
 
       {/* Dugmici koji se prikazuju prilikom uredjivanja s prijateljima*/}
-      {uredjivanjeSPrijateljima && (
+      {/* {uredjivanjeSPrijateljima && (
         <>
           <input
             className="w-64 p-4 text-xl my-auto bg-transparent border-b-2 focus:outline-none text-white"
@@ -65,15 +65,15 @@ const Footer = () => {
             Kreiraj kod
           </button>
         </>
-      )}
-      {kreiranjeKoda && (
+      )} */}
+      {/* {kreiranjeKoda && (
         <Alert
           poruka={"jr9p4g"}
           setter={() => {
             setKreiranjeKoda(false);
           }}
         />
-      )}
+      )} */}
     </div>
   );
 };

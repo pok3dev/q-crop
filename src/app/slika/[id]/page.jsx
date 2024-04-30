@@ -298,40 +298,42 @@ const Slika = () => {
       )}
       {/* Alert komponenta */}
       {porukaGreske && <Alert poruka={porukaGreske} setter={setPorukaGreske} />}
-      <span className="flex justify-between items-center text-white py-6 px-12 bg-slate-800">
-        <Link
-          href="/"
-          className="flex flex-col gap-1 justify-center items-center group"
-        >
-          <Strelica velicina={512} klase={`w-6 z-50  -rotate-90`} />
-          <h1>Nazad</h1>
-        </Link>
-        <Link href="/">
-          <h1
-            className="font-bold text-3xl absolute top-8 left-1/2 -translate-x-1/2"
-            title="Vrati se nazad"
+      <span className="flex justify-between items-center text-white py-3  sm:py-6 px-6 sm:px-12 bg-slate-800">
+        <div className="flex gap-6 sm:gap-10">
+          <Link
+            href="/"
+            className="flex flex-col gap-1 justify-center items-center group"
           >
-            qCrop
-          </h1>
-        </Link>
-        <div className="flex gap-10">
+            <Strelica velicina={512} klase={`w-6 z-50  -rotate-90`} />
+            <h1 className="text-[10px] sm:text-sm md:text-md">Nazad</h1>
+          </Link>
           <button
             className="flex flex-col gap-1 justify-center items-center transition-all duration-300 hover:text-red-400 group"
             onClick={() => setPotvrda(true)}
           >
             <Obriši velicina={512} klase={`w-6 z-50`} />
-            <h1>Obriši</h1>
+            <h1 className="text-[10px] sm:text-sm md:text-md">Obriši</h1>
           </button>
+        </div>
+        <Link href="/">
+          <h1
+            className="font-bold text-xl sm:text-2xl md:text-3xl absolute top-4 sm:top-6 left-1/2 -translate-x-1/2"
+            title="Vrati se nazad"
+          >
+            qCrop
+          </h1>
+        </Link>
+        <div className="flex gap-6 sm:gap-10">
           <button
             className="flex flex-col gap-1 justify-center items-center group"
             onClick={handlePreuzmi}
           >
-            <Preuzmi velicina={512} klase={`w-6 z-50`} />
-            <h1>Preuzmi</h1>
+            <Preuzmi velicina={512} klase={`w-6 md:w-6 z-50`} />
+            <h1 className="text-[10px] sm:text-sm md:text-md">Preuzmi</h1>
           </button>
           <button className="flex flex-col gap-1 justify-center items-center group">
             <Sacuvaj velicina={512} klase={`w-6 z-50`} cb={handleSacuvaj} />
-            <h1>Sačuvaj</h1>
+            <h1 className="text-[10px] sm:text-sm md:text-md">Sačuvaj</h1>
           </button>
         </div>
       </span>
@@ -401,7 +403,7 @@ const Slika = () => {
             )}
           </div>
         </div>
-        <div className="absolute bottom-0 w-full h-[96px] bg-slate-800 text-white flex justify-between align-middle px-[24vw] capitalize">
+        <div className="absolute -bottom-8 sm:bottom-0 w-full h-[96px] bg-slate-800 text-white flex justify-between align-middle px-[6vw] sm:px-[12vw] lg:px-[24vw] capitalize">
           <button
             className="h-16 my-4 transition-all duration-300 hover:scale-105 hover:text-blue-500"
             onClick={() => {
@@ -410,7 +412,7 @@ const Slika = () => {
             }}
           >
             <Izrezi velicina={512} klase={`w-8`} />
-            <h2>Izreži</h2>
+            <h2 className="text-[10px] sm:text-sm md:text-md">Izreži</h2>
           </button>
           <button
             className="h-16 my-4 transition-all duration-300 hover:scale-105 hover:text-yellow-500"
@@ -420,7 +422,7 @@ const Slika = () => {
             }}
           >
             <Svjetlo velicina={512} klase={`w-8`} />
-            <h2>Svjetlo</h2>
+            <h2 className="text-[10px] sm:text-sm md:text-md">Svjetlo</h2>
           </button>
           <button
             className="h-16 my-4 transition-all duration-300 hover:scale-105 hover:text-red-500 "
@@ -430,7 +432,7 @@ const Slika = () => {
             }}
           >
             <Boje velicina={512} klase={`w-8`} />
-            <h2>Boje</h2>
+            <h2 className="text-[10px] sm:text-sm md:text-md">Boje</h2>
           </button>
           <button
             className="h-16 my-4 transition-all duration-300 hover:scale-105 hover:text-green-500"
@@ -440,7 +442,7 @@ const Slika = () => {
             // }}
           >
             <Efekti velicina={512} klase={`w-8`} />
-            <h2>Efekti</h2>
+            <h2 className="text-[10px] sm:text-sm md:text-md">Efekti</h2>
           </button>
           <button
             className="h-16 my-4 transition-all duration-300 hover:scale-105 hover:text-gray-500"
@@ -450,12 +452,12 @@ const Slika = () => {
             // }}
           >
             <Detalji velicina={512} klase={`w-8`} />
-            <h2>Detalji</h2>
+            <h2 className="text-[10px] sm:text-sm md:text-md">Detalji</h2>
           </button>
         </div>
       </div>
       {menu && (
-        <span className="absolute h-[100vh] w-[27vw] top-0 pt-16 right-0 bg-slate-800 z-40">
+        <span className="absolute h-[500px] sm:h-[100vh] w-full sm:w-[400px] bottom-0 sm:top-0 pt-4 sm:pt-16 right-0 bg-[rgba(30,41,59,0.9)] sm:bg-slate-800 z-40">
           <div className="flex justify-between">
             <div className="w-16 invisible"></div>
             <h1 className="text-center bg-transparent text-2xl text-white mt-4">

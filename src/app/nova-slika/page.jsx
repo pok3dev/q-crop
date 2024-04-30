@@ -1,8 +1,10 @@
 "use client";
 import Alert from "@/komponente/Alert";
 import Upload from "@/komponente/Upload";
+import Strelica from "@/komponente/ikone/Strelica";
 import Navbar from "@/komponente/navbar/Navbar";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { FileUploader } from "react-drag-drop-files";
@@ -75,20 +77,42 @@ const NovaSlika = () => {
 
   return (
     <div ref={sl}>
-      <Navbar />
+      <div className="absolute top-0 flex w-full justify-between items-center py-4 sm:py-6 px-6 sm:px-12 text-white bg-slate-800 mb-4 sm:mb-6">
+        {/* Odjava */}
+        <Link
+          href={"/"}
+          className="cursor-pointer"
+          onClick={(event) => {
+            slika ? handleDelete(sl.current, event) : null;
+          }}
+        >
+          <Strelica velicina={512} klase={`w-6 z-50 -rotate-90`} />
+          <h2 className=" hidden sm:inline">Vrati se</h2>
+        </Link>
+        {/* Naziv aplikacije */}
+        <h1 className="absolute left-[50%] -translate-x-[50%] text-xl sm:text-3xl font-bold  ">
+          qCrop
+        </h1>
+        {/* Opcije korisnika */}
+        <span className="ml-auto flex align-middle gap-8">
+          <div className="rounded-full h-10 w-10 inline-block bg-white"></div>
+        </span>
+      </div>
       {/* Alert komponenta */}
       {porukaGreske && <Alert poruka={porukaGreske} setter={setPorukaGreske} />}
-      <div className="w-[60vw] mx-auto rounded-xl bg-slate-800 text-white p-4 flex items-center justify-center gap-4 mb-4 mt-32">
-        <h1 className="text-xl">1. Naziv projekta: </h1>
+      <div className="w-[95vw] sm:w-[90vw] md:w-[60vw] mx-auto rounded-xl bg-slate-800 text-white p-4 flex flex-col sm:flex-row items-center justify-center gap-4 mb-4 mt-24 sm:mt-32">
+        <h1 className="text-sm sm:text-lg lg:text-xl">1. Naziv projekta:</h1>
         <input
-          className="text-xl bg-transparent p-2 border-b-2 focus:outline-none hover:scale-105 transition-all duration-300"
+          className="text-sm sm:text-lg lg:text-xl bg-transparent p-2 border-b-2 focus:outline-none sm:hover:scale-105 transition-all duration-300"
           placeholder="Novi projekat"
           onChange={(e) => setNaslov(e.target.value)}
         />
       </div>
-      <div className="w-[60vw] mx-auto bg-slate-800 px-4 py-8 rounded-xl text-white flex flex-col items-center justify-center  mb-4">
+      <div className="w-[95vw] sm:w-[90vw] md:w-[60vw] mx-auto bg-slate-800 px-4 py-8 rounded-xl text-white flex flex-col items-center justify-center  mb-4">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl">2. Izaberite ili prevucite sliku:</h1>
+          <h1 className="text-sm sm:text-lg lg:text-xl">
+            2. Izaberite ili prevucite sliku:
+          </h1>
         </div>
         {/* Komponenta za 'drag and drop' slika */}
         {slika && (
@@ -101,7 +125,7 @@ const NovaSlika = () => {
               alt="postavljena slika"
             />
             <button
-              className="bg-[#2a4657] px-8 py-4 rounded-md hover:scale-105 transition-all duration-300"
+              className="bg-[#2a4657] px-8 py-4 rounded-md sm:hover:scale-105 transition-all duration-300"
               onClick={handleDelete.bind(event, sl.current)}
             >
               Obriši sliku
@@ -119,11 +143,11 @@ const NovaSlika = () => {
           </FileUploader>
         )}
       </div>
-      <div className="w-[60vw] mx-auto rounded-xl bg-slate-800 text-white py-4 flex items-center justify-center gap-4">
+      <div className="w-[95vw] sm:w-[90vw] md:w-[60vw] mx-auto rounded-xl bg-slate-800 text-white py-4 flex items-center justify-center gap-4">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl">3. Počnite sa radom:</h1>
+          <h1 className="text-lg sm:text-xl">3. Počnite sa radom:</h1>
           <button
-            className="bg-[#2a4657] px-8 py-4 rounded-md hover:scale-105 transition-all duration-300"
+            className="bg-[#2a4657] px-8 py-4 rounded-md sm:hover:scale-105 transition-all duration-300 text-sm sm:text-lg"
             onClick={handlePocni}
           >
             POČNI

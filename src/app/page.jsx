@@ -136,15 +136,11 @@ const Pocetna = () => {
             {/* Pretraga i sortiranje */}
             <div className="text-sm sm:text-md flex px-6 sm:px-10 w-[100vw] md:w-[640px] lg:w-[768px] gap-8 absolute top-[10rem] sm:top-[12rem]">
               <button
-                className="flex flex-col justify-items-center items-center w-10"
+                className="flex flex-col justify-items-center items-center w-8 lg:w-10 "
                 onClick={sortiranje}
               >
-                {!poredak && (
-                  <Strelica velicina={"h-6 w-6"} klase={"rotate-180"} />
-                )}
-                {poredak && (
-                  <Strelica velicina={"h-6 w-6"} klase={"rotate-0"} />
-                )}
+                {!poredak && <Strelica klase={"w-8 rotate-180"} />}
+                {poredak && <Strelica klase={"w-8 rotate-0"} />}
                 {opcijaSortiranja}
               </button>
               <input
@@ -154,7 +150,7 @@ const Pocetna = () => {
               ></input>
             </div>
             {/* Projekti */}
-            <div className="flex justify-start px-6 sm:px-10 mt-[16rem] sm:mt-[18rem] gap-6 flex-none w-max overflow-scroll sm:flex-wrap sm:w-auto sm:overflow-hidden ">
+            <div className="flex justify-start px-6 sm:px-10 mt-[16rem] sm:mt-[18rem] gap-6 flex-none w-max sm:flex-wrap sm:w-auto sm:overflow-hidden ">
               {učitavanje && (
                 <div className=" text-white text-3xl">Učitavanje...</div>
               )}
