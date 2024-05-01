@@ -339,7 +339,7 @@ const Slika = () => {
       </span>
       <div className="relative flex flex-col justify-center align-middle h-[100vh] -translate-y-24">
         <div
-          className=" flex items-center justify-center mx-auto w-[60vw] h-[600px] bg-transparent pt-[10rem]  mb-[26vh] "
+          className=" flex items-center justify-center mx-auto w-full sm:w-[95vw] h-[300px] sm:h-[500px] bg-transparent pt-[10rem]  mb-[26vh]"
           // onMouseDown={handleMouseDown}
           // onMouseUp={handleMouseUp}
         >
@@ -356,7 +356,7 @@ const Slika = () => {
             <div className="absolute w-[60vw] h-[480px] bg-black hover:opacity-40 cursor-pointer opacity-0 group-hover:opacity-50 z-20  transition-all duration-300"></div>
           </div>
           <div className="flex flex-col items-center justify-between gap-1">
-            <div className="relative max-h-[60vh] h-[400px] overflow-hidden">
+            <div className="relative max-h-[60vh] overflow-hidden max-w-[300px] sm:max-w-[400px] md:max-w-[500px]">
               <>
                 {ucitavanjeSlike && (
                   <h1 className="text-white text-2xl mt-[25vh]">
@@ -368,7 +368,7 @@ const Slika = () => {
                     id="slika"
                     src={`/slike/${slika}`}
                     alt="editovana-slika"
-                    className="h-[400px]"
+                    className="max-w-[300px] sm:max-w-[400px] md:max-w-[500px]"
                   ></img>
                 )}
               </>
@@ -378,7 +378,7 @@ const Slika = () => {
                   // src={`/slike/${slika}`}
                   src={document.getElementById("slika").src}
                   style={{ filter: filteriObj.filter }}
-                  className={`rezanje absolute top-0 left-0 max-h-[60vh]`}
+                  className={`rezanje absolute top-0 left-0 max-w-[300px] sm:max-w-[400px] md:max-w-[500px] max-h-[60vh]`}
                   guides={false}
                   crop={onCrop}
                   ref={cropperRef}
@@ -422,7 +422,7 @@ const Slika = () => {
             }}
           >
             <Svjetlo velicina={512} klase={`w-8`} />
-            <h2 className="text-[10px] sm:text-sm md:text-md">Svjetlo</h2>
+            <h2 className="text-[10px] sm:text-sm md:text-md">Svijetlo</h2>
           </button>
           <button
             className="h-16 my-4 transition-all duration-300 hover:scale-105 hover:text-red-500 "
@@ -457,8 +457,8 @@ const Slika = () => {
         </div>
       </div>
       {menu && (
-        <span className="absolute h-[500px] sm:h-[100vh] w-full sm:w-[400px] bottom-0 sm:top-0 pt-4 sm:pt-16 right-0 bg-[rgba(30,41,59,0.9)] sm:bg-slate-800 z-40">
-          <div className="flex justify-between">
+        <span className="absolute flex flex-col justify-start items-center h-[500px] sm:h-[100vh] w-full sm:w-[400px] bottom-0 sm:top-0 pt-4 sm:pt-16 right-0 bg-[rgba(30,41,59,0.9)] sm:bg-slate-800 z-40">
+          <div className="w-full flex justify-between pr-4">
             <div className="w-16 invisible"></div>
             <h1 className="text-center bg-transparent text-2xl text-white mt-4">
               {meniSekcije[sekcija]}

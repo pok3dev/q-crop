@@ -1,5 +1,6 @@
 import "@/app/globals.css";
 import Strelica from "../ikone/Strelica";
+import Osoba from "../ikone/Osoba";
 
 const Navbar = ({ imePrezime, cb }) => {
   return (
@@ -14,9 +15,9 @@ const Navbar = ({ imePrezime, cb }) => {
         qCrop
       </h1>
       {/* Opcije korisnika */}
-      <span className="ml-auto flex align-middle gap-8">
+      <span className="ml-auto flex align-middle gap-4">
         <h2 className="hidden md:block py-2 ">{imePrezime}</h2>
-        <div className="rounded-full h-10 w-10 inline-block bg-white"></div>
+        <Osoba velicina={512} klase={`w-8 z-50`} />
       </span>
     </div>
   );

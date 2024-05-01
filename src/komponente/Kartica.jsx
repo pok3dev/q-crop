@@ -35,7 +35,7 @@ const Kartica = ({ id, idKorisnika, naziv, slika, datum }) => {
     <>
       {potvrda && (
         <Confirm
-          poruka={`Da li želite da obrišete projekat ${naziv}?`}
+          poruka={`Da li želite da obrišete projekat "${naziv}" ?`}
           setter={setPotvrda}
           cb={handleIzbriši}
         ></Confirm>
@@ -48,7 +48,7 @@ const Kartica = ({ id, idKorisnika, naziv, slika, datum }) => {
           </h6>
           <Obriši
             velicina={512}
-            klase={`w-6 sm:w-8 absolute right-5 bottom-5 opacity-100  sm:sopacity-20 sm:group-hover:opacity-100 hover:cursor-pointer`}
+            klase={`w-6 sm:w-8 absolute right-5 bottom-5 opacity-100  sm:opacity-20 sm:group-hover:opacity-100 hover:cursor-pointer`}
             cb={() => setPotvrda(true)}
           ></Obriši>
         </div>

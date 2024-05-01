@@ -3,29 +3,34 @@ import Alert from "@/komponente/Alert";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import validator from "validator";
 
 const Registracija = () => {
   const [poruka, setPoruka] = useState("");
-
+  const navigation = useRouter();
   // Funkcija za registraciju - Validacija unosa i slanje API zahtjeva
   const handleRegister = async (e) => {
     const forma = e.target;
     e.preventDefault();
-    if (
-      !forma.ime.value ||
-      !forma.mejl.value ||
-      !forma.šifra.value ||
-      !forma.šifraPotvrda.value
-    ) {
-      setPoruka("Unesite sva polja.");
-      return;
-    } else if (forma.šifra.value != forma.šifraPotvrda.value) {
-      setPoruka("Šifre moraju biti iste.");
-      return;
-    } else if (forma.šifra.value.length < 8) {
-      setPoruka("Šifra mora sadržavati minimalno 8 znakova.");
-      return;
+
+    const ime = forma.ime.value;
+    const mejl = forma.mejl.value;
+    const šifra = forma.šifra.value;
+    const šifraPotvrda = forma.šifraPotvrda.value;
+    if (!ime || !mejl || !šifra || !šifraPotvrda) {
+      return setPoruka("Unesite sva polja.");
     }
+    if (ime.length > 25)
+      return setPoruka("Ime ne smije biti duže od 25 znakova");
+    if (mejl.length > 50)
+      return setPoruka("Mejl ne smije biti duži od 50 znakova");
+    if (šifra.length > 50)
+      return setPoruka("Šifra ne smije biti duže od 50 znakova");
+
+    if (šifra != šifraPotvrda) return setPoruka("Šifre moraju biti iste.");
+    if (šifra.length < 8)
+      return setPoruka("Šifra mora sadržavati minimalno 8 znakova.");
+    if (!validator.isEmail(mejl)) return setPoruka("Mejl nije ispravan...");
 
     const req = await fetch(
       "http://localhost:3001/korisnik/registrujKorisnika",
@@ -44,7 +49,7 @@ const Registracija = () => {
     const res = await req.json();
     if (res.status == "Uspješno") {
       setPoruka("Uspješno registrovanje");
-      router.replace("/login");
+      navigation.replace("/login");
     }
     if (res.status == "Greška") {
       setPoruka(res.poruka);

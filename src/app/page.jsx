@@ -13,7 +13,7 @@ const Pocetna = () => {
   // 1. useState hookovi
   const [učitavanje, setUčitavanje] = useState(true);
   const [idKorisnika, setIdKorisnika] = useState(-1);
-  const [imePrezime, setImePrezime] = useState("");
+  const [ime, setIme] = useState("");
   const [projekti, setProjekti] = useState([]);
 
   const [pretraga, setPretraga] = useState([]);
@@ -63,11 +63,7 @@ const Pocetna = () => {
       if (res.status == "Uspješno") {
         console.log(res);
         setIdKorisnika(res.data.id);
-        setImePrezime(
-          `${res.data.ime}  ${
-            res.data.prezime != "null" ? res.data.prezime : ""
-          }`
-        );
+        setIme(res.data.ime);
         setProvjera(false);
         dohvatiProjekte(res.data.id);
       } else {
@@ -126,11 +122,11 @@ const Pocetna = () => {
       )}
       {!provjera && (
         <div className="overflow-x-scroll sm:overflow-x-hidden h-[100vh]">
-          <Navbar imePrezime={imePrezime} cb={() => setPotvrda(true)} />
+          <Navbar imePrezime={ime} cb={() => setPotvrda(true)} />
           <main className="flex flex-col gap-12 text-white h-[100vh]">
             {/* Dobrodošlica */}
             <h1 className="text-md sm:text-xl absolute left-6 top-[7rem] sm:left-12 sm:top-[8rem]">
-              Dobrodošao/la, {imePrezime}
+              Dobrodošao/la, {ime}
             </h1>
 
             {/* Pretraga i sortiranje */}
