@@ -114,12 +114,19 @@ const Slika = () => {
   const [jedinicaSkaliranja, setJedinicaSkaliranja] = useState(1);
 
   const onCrop = () => {
-    const el = document.querySelector(".rezanje");
+    const rezanje = document.getElementById("rezanje");
+
+    const slika = document.getElementById("slika");
+
+    rezanje.classList.add(
+      slika.offsetHeight >= slika.offsetWidth ? "portrait" : "landscape"
+    );
+
     if (jedinicaSkaliranja !== 1) {
-      el.classList.add("centriraj");
-      el.style.transform = `translate(-50%,-50%) scale(${jedinicaSkaliranja})`;
+      rezanje.classList.add("centriraj");
+      rezanje.style.transform = `translate(-50%,-50%) scale(${jedinicaSkaliranja})`;
     } else {
-      document.getElementById("slika").classList.remove("centriraj");
+      slika.classList.remove("centriraj");
     }
     postaviFiltere();
   };
@@ -163,6 +170,13 @@ const Slika = () => {
       setUcitavanjeSlike(false);
       setFilteri({ ...res.data.filteri[0] });
     } else return setPorukaGreske(res.poruka);
+
+    const slika = document.getElementById("slika");
+
+    slika.classList.add(
+      slika.offsetHeight >= slika.offsetWidth ? "portrait" : "landscape"
+    );
+    console.log(slika.classList);
   };
 
   useEffect(() => {
@@ -356,7 +370,7 @@ const Slika = () => {
             <div className="absolute w-[60vw] h-[480px] bg-black hover:opacity-40 cursor-pointer opacity-0 group-hover:opacity-50 z-20  transition-all duration-300"></div>
           </div>
           <div className="flex flex-col items-center justify-between gap-1">
-            <div className="relative max-h-[60vh] overflow-hidden max-w-[300px] sm:max-w-[400px] md:max-w-[500px]">
+            <div className="relative overflow-hidden">
               <>
                 {ucitavanjeSlike && (
                   <h1 className="text-white text-2xl mt-[25vh]">
@@ -368,7 +382,7 @@ const Slika = () => {
                     id="slika"
                     src={`/slike/${slika}`}
                     alt="editovana-slika"
-                    className="max-w-[300px] sm:max-w-[400px] md:max-w-[500px]"
+                    className=""
                   ></img>
                 )}
               </>
@@ -376,9 +390,10 @@ const Slika = () => {
               {rezanje && (
                 <Cropper
                   // src={`/slike/${slika}`}
+                  id="rezanje"
                   src={document.getElementById("slika").src}
                   style={{ filter: filteriObj.filter }}
-                  className={`rezanje absolute top-0 left-0 max-w-[300px] sm:max-w-[400px] md:max-w-[500px] max-h-[60vh]`}
+                  className={`rezanje absolute top-0 left-0`}
                   guides={false}
                   crop={onCrop}
                   ref={cropperRef}
