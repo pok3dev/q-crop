@@ -1,28 +1,25 @@
 "use client";
-
 import Klizac from "@/komponente/Klizac";
-
 import Boje from "@/komponente/ikone/Boje";
 import Detalji from "@/komponente/ikone/Detalji";
 import Efekti from "@/komponente/ikone/Efekti";
 import Izrezi from "@/komponente/ikone/Izrezi";
 import Reset from "@/komponente/ikone/Reset";
 import Svjetlo from "@/komponente/ikone/Svjetlo";
-import { useEffect, useRef, useState } from "react";
 import Sacuvaj from "@/komponente/ikone/Sacuvaj";
 import Preuzmi from "@/komponente/ikone/Preuzmi";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-// import Image from "next/image";
 import Alert from "@/komponente/Alert";
 import Strelica from "@/komponente/ikone/Strelica";
 import Obriši from "@/komponente/ikone/Obriši";
-
-import Cropper from "react-cropper";
-import "cropperjs/dist/cropper.css";
-import domtoimage from "dom-to-image";
 import izbrisiAPI from "@/funkcije/izbrisiAPI";
 import Confirm from "@/komponente/Confirm";
+
+import domtoimage from "dom-to-image";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import Cropper from "react-cropper";
+import "cropperjs/dist/cropper.css";
 
 const Slika = () => {
   const [porukaGreske, setPorukaGreske] = useState("");
@@ -37,6 +34,7 @@ const Slika = () => {
 
   const pathname = usePathname();
 
+  // Niz vrijednosti za filtere slike
   const filteri = [
     [1, 1, 0, 1, 0],
     [0, 0, 1, 1],
@@ -44,22 +42,7 @@ const Slika = () => {
 
   const elemenat = useRef(filteri);
 
-  const postaviFiltere = () => {
-    const svjetlo = [...elemenat.current[0]];
-    const boje = [...elemenat.current[1]];
-    svjetlo[0] = `brightness(${elemenat.current[0][0]})`;
-    svjetlo[1] = `contrast(${elemenat.current[0][1]})`;
-    svjetlo[2] = `grayscale(${elemenat.current[0][2]})`;
-    svjetlo[3] = `brightness(${elemenat.current[0][3]})`;
-    svjetlo[4] = `brightness(${1 - elemenat.current[0][4]})`;
-    boje[0] = `hue-rotate(${elemenat.current[1][0] * 180}deg)`;
-    boje[1] = `sepia(${elemenat.current[1][1]})`;
-    boje[2] = `saturate(${elemenat.current[1][2]})`;
-    boje[3] = `saturate(${elemenat.current[1][3]})`;
-    const povezan = svjetlo.join(" ") + " " + boje.join(" ");
-    document.querySelector("#slika").style.filter = povezan;
-  };
-
+  // Funkcija za pretvaranje filtera u string za css filter stil
   const filteriCrop = () => {
     const svjetlo = [...elemenat.current[0]];
     const boje = [...elemenat.current[1]];
@@ -76,15 +59,22 @@ const Slika = () => {
     return povezan;
   };
 
+  // Funkcija za postavljanje filtera na sliku
+  const postaviFiltere = () => {
+    document.querySelector("#slika").style.filter = filteriCrop();
+  };
+
   const filteriObj = {
     filter: filteriCrop(),
   };
 
+  // Callback funkcija za ažuriranje pojedinih filtera na klizaču
   const postaviFilter = (vrijednost, menu, indeks) => {
     elemenat.current[menu][indeks] = vrijednost;
     postaviFiltere();
   };
 
+  // Funkcija za postavljanje vrijednosti filtera koje smo prethodno dohvatili iz baze podataka
   const setFilteri = ({
     svjetlost,
     kontrast,
@@ -111,22 +101,27 @@ const Slika = () => {
   const cropperRef = useRef(null);
 
   const [prethodnoStanje, setPrethodnoStanje] = useState("");
+  const [prethodnoSkaliranje, setPrethodnoSkaliranje] = useState(1);
+
   const [jedinicaSkaliranja, setJedinicaSkaliranja] = useState(1);
 
   const onCrop = () => {
-    const rezanje = document.getElementById("rezanje");
+    const rezanje = document.querySelector(".rezanje");
 
     const slika = document.getElementById("slika");
 
-    rezanje.classList.add(
-      slika.offsetHeight >= slika.offsetWidth ? "portrait" : "landscape"
-    );
+    document
+      .getElementById("rezanje")
+      .classList.add(
+        slika.offsetHeight >= slika.offsetWidth ? "portrait" : "landscape"
+      );
 
+    console.log(rezanje);
     if (jedinicaSkaliranja !== 1) {
       rezanje.classList.add("centriraj");
       rezanje.style.transform = `translate(-50%,-50%) scale(${jedinicaSkaliranja})`;
     } else {
-      slika.classList.remove("centriraj");
+      rezanje.classList.remove("centriraj");
     }
     postaviFiltere();
   };
@@ -137,7 +132,11 @@ const Slika = () => {
 
     if (prethodnoStanje === "") setPrethodnoStanje(`/slike/${slika}`);
     else setPrethodnoStanje(document.getElementById("slika").src);
-    const skala = 400 / cropper.getCroppedCanvas().height;
+    setPrethodnoSkaliranje(jedinicaSkaliranja);
+
+    const skala =
+      document.getElementById("slika").offsetHeight /
+      cropper.getCroppedCanvas().height;
     setJedinicaSkaliranja(skala.toFixed(2));
 
     document.getElementById("slika").src = cropper
@@ -148,6 +147,7 @@ const Slika = () => {
   const handlePoništi = () => {
     if (!prethodnoStanje) return;
     document.getElementById("slika").src = prethodnoStanje;
+    setJedinicaSkaliranja(prethodnoSkaliranje);
     setPrethodnoStanje("");
   };
 
@@ -408,9 +408,10 @@ const Slika = () => {
                 IZREŽI
               </button>
             )}
+            {console.log(!rezanje && prethodnoStanje != "")}
             {!rezanje && prethodnoStanje != "" && (
               <button
-                className="absolute px-8 py-4 bottom-0 font-bold w-32 bg-slate-800 text-white rounded-md"
+                className="absolute px-8 py-4 bottom-[14vh] font-bold w-32 bg-slate-800 text-white rounded-md"
                 onClick={handlePoništi}
               >
                 PONIŠTI

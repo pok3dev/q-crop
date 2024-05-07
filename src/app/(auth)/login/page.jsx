@@ -3,23 +3,27 @@ import Alert from "../../../komponente/Alert";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const Login = () => {
   const [poruka, setPoruka] = useState("");
   const [provjera, setProvjera] = useState(true);
+
   const navigate = useRouter();
 
+  // Provjeravamo da li je korisnik već ulogovan ( ako token postoji u browseru )
   useEffect(() => {
+    // 1. API poziv
     (async () => {
       const req = await fetch("http://localhost:3001/korisnik/jelUlogovan", {
         method: "GET",
         redirect: "follow",
-        credentials: "include", // Don't forget to specify this if you need cookies
+        credentials: "include", // Za cookije!
       });
 
       const res = await req.json();
 
+      // 2. Ako je status uspješan, izvršiti redirekciju na početnu stranicu, u suprotnom ostati na istoj stranici
       if (res.status == "Uspješno") {
         navigate.replace("/");
       } else {
@@ -28,15 +32,21 @@ const Login = () => {
     })();
   }, []);
 
+  // Callback funkcija za logovanje
   const handleLogin = async (e) => {
+    // 1. Sprječavamo ponovno učitanje stranice
     e.preventDefault();
     const forma = e.target;
+
+    // 2. Ako sva polja nisu unesena, ispisati poruku
     if (!forma.mejl.value || !forma.šifra.value) {
       return setPoruka("Unesite sva polja.");
     }
+
+    // 3. API poziv sa login podacima
     const req = await fetch("http://localhost:3001/korisnik/dohvatiKorisnika", {
       method: "POST",
-      credentials: "include", // Don't forget to specify this if you need cookies
+      credentials: "include", // Za cookije!
       headers: {
         "Content-Type": "application/json",
       },
@@ -45,6 +55,8 @@ const Login = () => {
         šifra: forma.šifra.value,
       }),
     });
+
+    // 4. Ako je status uspješan, izvršiti redirekciju na početnu stranicu, u suprotnom ispisati poruku
     const res = await req.json();
     if (res.status == "Uspješno") {
       navigate.replace("/");
@@ -79,7 +91,8 @@ const Login = () => {
             </button>
           </form>
           <p className="text-white text-sm sm:text-lg text-center sm:mt-12 -mb-6 sm:-mb-4">
-            Nemaš nalog? <br />
+            Nemaš nalog?
+            <br />
             <br />
             Registruj se u roku od minut i pridruži nam se u uređivanju slika!
           </p>

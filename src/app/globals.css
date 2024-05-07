@@ -16,16 +16,16 @@ body {
   transform: translate(-50%, -50%) scale(1.47);
 }
 .portrait {
-  max-height: 60vh;
+  height: 60vh;
 }
 .landscape {
   max-height: 500px;
-  max-width: 90vw;
+  width: 7%;
 }
 
 @media (max-width: 500px) {
   .portrait {
-    max-height: 50vh;
+    height: 50vh;
   }
   .landscape {
     max-height: 400px;

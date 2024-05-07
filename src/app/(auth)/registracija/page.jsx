@@ -1,5 +1,6 @@
 "use client";
 import Alert from "@/komponente/Alert";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -8,30 +9,37 @@ import validator from "validator";
 const Registracija = () => {
   const [poruka, setPoruka] = useState("");
   const navigation = useRouter();
-  // Funkcija za registraciju - Validacija unosa i slanje API zahtjeva
+
+  // Callback funkcija za registraciju korisnika
   const handleRegister = async (e) => {
     const forma = e.target;
+
+    // 1. Sprječavamo ponovno učitanje stranice
     e.preventDefault();
 
     const ime = forma.ime.value;
     const mejl = forma.mejl.value;
     const šifra = forma.šifra.value;
     const šifraPotvrda = forma.šifraPotvrda.value;
+
+    // 2.1. Ako sva polja nisu unesena, ispisati poruku
     if (!ime || !mejl || !šifra || !šifraPotvrda) {
       return setPoruka("Unesite sva polja.");
     }
+    // 2.2. Ograničavamo dužinu podataka na onu koja je zadana u bazi podataka
     if (ime.length > 25)
       return setPoruka("Ime ne smije biti duže od 25 znakova");
     if (mejl.length > 50)
       return setPoruka("Mejl ne smije biti duži od 50 znakova");
     if (šifra.length > 50)
       return setPoruka("Šifra ne smije biti duže od 50 znakova");
-
+    // 2.3. Izvršavamo validaciju mejla i šifre
     if (šifra != šifraPotvrda) return setPoruka("Šifre moraju biti iste.");
     if (šifra.length < 8)
       return setPoruka("Šifra mora sadržavati minimalno 8 znakova.");
     if (!validator.isEmail(mejl)) return setPoruka("Mejl nije ispravan...");
 
+    // 3. API poziv sa register podacima
     const req = await fetch(
       "http://localhost:3001/korisnik/registrujKorisnika",
       {
@@ -46,7 +54,10 @@ const Registracija = () => {
         }),
       }
     );
+
     const res = await req.json();
+
+    // 4. Ako je status uspješan, izvršiti redirekciju na login stranicu, u suprotnom ispisati poruku
     if (res.status == "Uspješno") {
       setPoruka("Uspješno registrovanje");
       navigation.replace("/login");

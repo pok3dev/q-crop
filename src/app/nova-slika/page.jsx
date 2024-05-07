@@ -2,7 +2,7 @@
 import Alert from "@/komponente/Alert";
 import Upload from "@/komponente/Upload";
 import Strelica from "@/komponente/ikone/Strelica";
-import Navbar from "@/komponente/navbar/Navbar";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,28 +13,35 @@ const fileTypes = ["JPG", "PNG", "GIF"];
 
 const NovaSlika = () => {
   const sl = useRef(null);
-  // useState hookovi za grešku i naslov
-  const [porukaGreske, setPorukaGreske] = useState("");
-  const [naslov, setNaslov] = useState("");
 
-  // Varijabla i funkcija za sliku
+  const [poruka, setPoruka] = useState("");
+  const [naslov, setNaslov] = useState("");
   const [slika, setSlika] = useState(false);
+
+  // Callback funkcija za upload slike
   const handleImage = async (upload) => {
+    // 1. Postavljanje imena sa jpeg ekstenzijom na sl referencu
     sl.current = `${upload.name.split(".")[0]}.jpeg`;
+
+    // 2. Kreiranje FormData za uplaod slike
     const formData = new FormData();
     formData.append("slika", upload);
 
+    // 3. API poziv sa slikom koju smo postavili na formData
     const url = await fetch("http://localhost:3001/slike/postaviSliku", {
       method: "POST",
       redirect: "follow",
       body: formData,
     });
+
+    // 4. Ako je status uspješan, postavljamo sliku zamjenjujemo upload prozorom
     const res = await url.json();
     if (res.status === "Uspješno") {
       setSlika(true);
     }
   };
 
+  // Callback funkcija za brisanje slike
   const handleDelete = async (ime, event) => {
     const url = await fetch("http://localhost:3001/slike/obrisiSliku", {
       method: "DELETE",
@@ -53,11 +60,12 @@ const NovaSlika = () => {
 
   const router = useRouter();
 
-  // Funkcija za izdržavanje i provjeranje da li je unos podataka novog projekta validan
+  // Funkcija za izdržavanje i provjeru da li je unos podataka novog projekta validan
   const handlePocni = async () => {
-    if (!naslov) return setPorukaGreske("Naslov ne smije biti prazan.");
-    if (!slika) return setPorukaGreske("Moraš prvo postaviti sliku.");
+    if (!naslov) return setPoruka("Naslov ne smije biti prazan.");
+    if (!slika) return setPoruka("Moraš prvo postaviti sliku.");
 
+    // 1. API poziv sa nazivom i slikom
     const url = await fetch("http://localhost:3001/projekti/kreirajProjekat", {
       method: "POST",
       credentials: "include",
@@ -69,10 +77,13 @@ const NovaSlika = () => {
         slika: sl.current,
       }),
     });
+
     const res = await url.json();
+
+    // 2. Ako je status uspješan, izvršiti redirekciju na stranicu za uređivanje slike
     if (res.status === "Uspješno") {
       router.push(`/slika/${res.data}`);
-    } else return setPorukaGreske(res.poruka);
+    } else return setPoruka(res.poruka);
   };
 
   return (
@@ -82,6 +93,7 @@ const NovaSlika = () => {
         <Link
           href={"/"}
           className="cursor-pointer"
+          // Kada odlučimo napustiti stranicu, izbrisati sliku sa servera
           onClick={(event) => {
             slika ? handleDelete(sl.current, event) : null;
           }}
@@ -99,7 +111,7 @@ const NovaSlika = () => {
         </span>
       </div>
       {/* Alert komponenta */}
-      {porukaGreske && <Alert poruka={porukaGreske} setter={setPorukaGreske} />}
+      {poruka && <Alert poruka={poruka} setter={setPoruka} />}
       <div className="w-[95vw] sm:w-[90vw] md:w-[60vw] mx-auto rounded-xl bg-slate-800 text-white p-4 flex flex-col sm:flex-row items-center justify-center gap-4 mb-4 mt-24 sm:mt-32">
         <h1 className="text-sm sm:text-lg lg:text-xl">1. Naziv projekta:</h1>
         <input
