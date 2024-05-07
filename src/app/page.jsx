@@ -6,6 +6,7 @@ import sistemSortiranja from "@/komponente/funkcije/sistemSortiranja";
 import Strelica from "@/komponente/ikone/Strelica";
 import Footer from "@/komponente/navbar/Footer";
 import Navbar from "@/komponente/navbar/Navbar";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -26,6 +27,7 @@ const Pocetna = () => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include", // Za cookije!
       body: JSON.stringify({
         idKorisnika: id,
       }),
@@ -55,7 +57,7 @@ const Pocetna = () => {
       const req = await fetch("http://localhost:3001/korisnik/jelUlogovan", {
         method: "GET",
         redirect: "follow",
-        credentials: "include", // Don't forget to specify this if you need cookies
+        credentials: "include", // Za cookije!
       });
 
       const res = await req.json();
@@ -101,7 +103,7 @@ const Pocetna = () => {
     const req = await fetch("http://localhost:3001/korisnik/odjava", {
       method: "GET",
       redirect: "follow",
-      credentials: "include", // Don't forget to specify this if you need cookies
+      credentials: "include", // Za cookije!
     });
 
     const res = await req.json();

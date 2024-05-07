@@ -20,15 +20,17 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
+import dataURLtoBlob from "@/komponente/funkcije/dataURLtoBlob";
 
 const Slika = () => {
-  const [porukaGreske, setPorukaGreske] = useState("");
+  const [poruka, setPoruka] = useState("");
   const [ucitavanjeSlike, setUcitavanjeSlike] = useState(true);
 
   const [menu, setMenu] = useState(false);
   const [sekcija, setSekcija] = useState(-1);
   const [rezanje, setRezanje] = useState(false);
 
+  const [idKorisnika, setIdKorisnika] = useState("");
   const [slika, setSlika] = useState("");
   const [imeProjekta, setImeProjekta] = useState("");
 
@@ -100,14 +102,15 @@ const Slika = () => {
 
   const cropperRef = useRef(null);
 
+  // useState hookovi koji se koriste prilikom vraćanja na prethodno izrezanu sliku
   const [prethodnoStanje, setPrethodnoStanje] = useState("");
   const [prethodnoSkaliranje, setPrethodnoSkaliranje] = useState(1);
 
   const [jedinicaSkaliranja, setJedinicaSkaliranja] = useState(1);
 
+  // Callback funkcija za rezanje
   const onCrop = () => {
     const rezanje = document.querySelector(".rezanje");
-
     const slika = document.getElementById("slika");
 
     document
@@ -116,34 +119,42 @@ const Slika = () => {
         slika.offsetHeight >= slika.offsetWidth ? "portrait" : "landscape"
       );
 
-    console.log(rezanje);
+    // 1. Ako se prethodno dogodilo rezanje slike, skalirati na zadanu vrijednost i centrirati
     if (jedinicaSkaliranja !== 1) {
       rezanje.classList.add("centriraj");
       rezanje.style.transform = `translate(-50%,-50%) scale(${jedinicaSkaliranja})`;
     } else {
       rezanje.classList.remove("centriraj");
     }
+
+    // 2. Postavljanje filtera
     postaviFiltere();
   };
 
+  // Callback funkcija koja se koristi kada se završi za rezanjem slike
   const handleIzreži = () => {
+    // 1. Uzimamo izrezani elemenat
     const cropper = cropperRef.current?.cropper;
     setRezanje(false);
 
+    // 2. Postavljanje vrijednosti na hookove prethodnog stanja
     if (prethodnoStanje === "") setPrethodnoStanje(`/slike/${slika}`);
     else setPrethodnoStanje(document.getElementById("slika").src);
     setPrethodnoSkaliranje(jedinicaSkaliranja);
 
+    // 3. Postavljanje jedinice skaliranja za naredna rezanja slike
     const skala =
       document.getElementById("slika").offsetHeight /
       cropper.getCroppedCanvas().height;
     setJedinicaSkaliranja(skala.toFixed(2));
 
+    // 4. Postavljanje izvora na image elemenat
     document.getElementById("slika").src = cropper
       .getCroppedCanvas()
       .toDataURL("image/png");
   };
 
+  // Callback funkcija za vraćanje na prethodne vrijednosti (rezanje);
   const handlePoništi = () => {
     if (!prethodnoStanje) return;
     document.getElementById("slika").src = prethodnoStanje;
@@ -151,12 +162,15 @@ const Slika = () => {
     setPrethodnoStanje("");
   };
 
+  // Funkcija za dohvatanje projekta
   const dohvatiProjekat = async () => {
+    // 1. API poziv sa id-em koji je zadan u url-u
     const url = await fetch("http://localhost:3001/projekti/dohvatiProjekat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         id: pathname.split("/")[2],
       }),
@@ -164,19 +178,20 @@ const Slika = () => {
 
     const res = await url.json();
 
+    // 2. Ako je status uspješan, postaviti sve vrijednosti
     if (res.status === "Uspješno" && res.data.projekat.length != 0) {
+      setIdKorisnika(res.data.projekat[0]?.idKorisnika);
       setSlika(res.data.projekat[0]?.slika);
       setImeProjekta(res.data.projekat[0]?.ime_projekta);
       setUcitavanjeSlike(false);
       setFilteri({ ...res.data.filteri[0] });
-    } else return setPorukaGreske(res.poruka);
+    } else return setPoruka(res.poruka);
 
     const slika = document.getElementById("slika");
 
     slika.classList.add(
       slika.offsetHeight >= slika.offsetWidth ? "portrait" : "landscape"
     );
-    console.log(slika.classList);
   };
 
   useEffect(() => {
@@ -184,21 +199,7 @@ const Slika = () => {
     dohvatiProjekat();
   }, []);
 
-  function dataURLtoBlob(dataURL) {
-    let array, binary, i, len;
-    binary = atob(dataURL.split(",")[1]);
-    array = [];
-    i = 0;
-    len = binary.length;
-    while (i < len) {
-      array.push(binary.charCodeAt(i));
-      i++;
-    }
-    return new Blob([new Uint8Array(array)], {
-      type: "image/png",
-    });
-  }
-
+  // Callback funkcija za spašavanje slike
   const handleSacuvaj = async () => {
     const podaci = {
       id: pathname.split("/")[2],
@@ -212,49 +213,54 @@ const Slika = () => {
       vibranca: elemenat.current[1][2],
       saturacija: elemenat.current[1][3],
     };
+
+    // 1. API poziv sa prethodno zadanim podacima
     const url = await fetch("http://localhost:3001/projekti/sacuvajProjekat", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify(podaci),
     });
 
+    // 2. Ako je došlo do promjene u izvornoj slici (prilikom rezanja), sačuvati novu sliku
     if (prethodnoStanje != "") {
       const file = dataURLtoBlob(
         cropperRef.current?.cropper.getCroppedCanvas().toDataURL("image/png")
       );
       const formData = new FormData();
       formData.append("slika", file, slika);
-      for (var key of formData.entries()) {
-        console.log(key[0] + ", " + key[1]);
-      }
 
+      // 3. API poziv za spašavanje slike
       const url2 = await fetch("http://localhost:3001/projekti/sacuvajSliku", {
         method: "PATCH",
         redirect: "follow",
         headers: {
           // "Content-Type": "multipart/form-data",
         },
+        credentials: "include",
         body: formData,
       });
     }
 
     const res = await url.json();
+
+    // 4. Ako su oba poziva uspješna obavjestiti korisnika o uspješnom spašavanju, u suprotnom prikaži grešku
     if (res.status === "Uspješno") {
-      // Ako mora sačuvati sliku
       if (prethodnoStanje != "") {
         const res2 = await url2.json();
         if (res2.status === "Uspješno") {
-          setPorukaGreske("Uspješno sačuvan projekat");
-        } else return setPorukaGreske(res2.poruka);
-      } else setPorukaGreske("Uspješno sačuvan projekat");
-    } else return setPorukaGreske(res.poruka);
+          setPoruka("Uspješno sačuvan projekat");
+        } else return setPoruka(res2.poruka);
+      } else setPoruka("Uspješno sačuvan projekat");
+    } else return setPoruka(res.poruka);
   };
 
+  // Callback funkcija za preuzimanje slike
   const handlePreuzmi = async () => {
     let node = document.getElementById("slika");
-    console.log(node);
+    // 1. Node paket za preuzimanje elementa slike
     domtoimage
       .toJpeg(node)
       .then(function (dataUrl) {
@@ -264,31 +270,32 @@ const Slika = () => {
         link.click();
       })
       .catch(function (error) {
-        setPorukaGreske("Nešto nije u redu...");
+        setPoruka("Nešto nije u redu...");
       });
   };
 
   const navigate = useRouter();
   const [potvrda, setPotvrda] = useState(false);
+
+  // Callback funkcija za brisanje slike
   const handleIzbriši = async () => {
     const podaci = {
       id: pathname.split("/")[2],
-      idKorisnika: 27,
     };
-
+    // 1. Ekstraktovana funkcija za brisanje
     const res = await izbrisiAPI(podaci);
 
+    // 2. Ako je sve u redu, gasimo confirm ekran i vršimo redirekciju na početnu stranicu
     setPotvrda(false);
     if (res.status === "Uspješno") {
       navigate.replace("/");
     } else {
-      setPorukaGreske(res.poruka);
+      setPoruka(res.poruka);
     }
   };
 
   const handleMouseDown = () => {
     document.querySelector("#slika").style.filter = "";
-    document.querySelector(".tip").style.display = "none";
   };
   const handleMouseUp = () => {
     postaviFiltere();
@@ -300,7 +307,9 @@ const Slika = () => {
     ["Tekstura", "Jasnoća", "Pročiščivanje", "Vinjeta"],
     ["Oštrina", "Radijus", "Redukcija šuma"],
   ];
+
   const meniSekcije = ["Svjetlo", "Boje", "Efekti", "Detalji"];
+
   return (
     <div>
       {potvrda && (
@@ -311,7 +320,7 @@ const Slika = () => {
         ></Confirm>
       )}
       {/* Alert komponenta */}
-      {porukaGreske && <Alert poruka={porukaGreske} setter={setPorukaGreske} />}
+      {poruka && <Alert poruka={poruka} setter={setPoruka} />}
       <span className="flex justify-between items-center text-white py-3  sm:py-6 px-6 sm:px-12 bg-slate-800">
         <div className="flex gap-6 sm:gap-10">
           <Link
@@ -351,24 +360,8 @@ const Slika = () => {
           </button>
         </div>
       </span>
-      <div className="relative flex flex-col justify-center align-middle h-[100vh] -translate-y-24">
-        <div
-          className=" flex items-center justify-center mx-auto w-full sm:w-[95vw] h-[300px] sm:h-[500px] bg-transparent pt-[10rem]  mb-[26vh]"
-          // onMouseDown={handleMouseDown}
-          // onMouseUp={handleMouseUp}
-        >
-          <div className="tip absolute w-[60vw] h-[480px] left-0 top-16 hidden justify-center z-40 group ">
-            <div className="flex flex-col gap-4 my-auto">
-              <Reset
-                velicina={512}
-                klase={`w-12 z-50 opacity-0 group-hover:opacity-100 transition-all duration-300`}
-              />
-              <h1 className="text-white text-xl text-center opacity-0 group-hover:opacity-100 z-30  transition-all duration-300">
-                ZADRZI KLIK DA VIDIS PRETHODNO STANJE
-              </h1>
-            </div>
-            <div className="absolute w-[60vw] h-[480px] bg-black hover:opacity-40 cursor-pointer opacity-0 group-hover:opacity-50 z-20  transition-all duration-300"></div>
-          </div>
+      <div className="relative flex flex-col justify-center align-middle h-[100vh] -translate-y-24 ">
+        <div className=" flex items-center justify-center mx-auto w-full sm:w-[95vw] h-[300px] sm:h-[500px] bg-transparent pt-[10rem]  mb-[26vh]">
           <div className="flex flex-col items-center justify-between gap-1">
             <div className="relative overflow-hidden">
               <>
@@ -382,14 +375,17 @@ const Slika = () => {
                     id="slika"
                     src={`/slike/${slika}`}
                     alt="editovana-slika"
-                    className=""
+                    className="hover:cursor-pointer"
+                    onMouseDown={handleMouseDown}
+                    onTouchStart={handleMouseDown}
+                    onMouseUp={handleMouseUp}
+                    onTouchEnd={handleMouseUp}
                   ></img>
                 )}
               </>
 
               {rezanje && (
                 <Cropper
-                  // src={`/slike/${slika}`}
                   id="rezanje"
                   src={document.getElementById("slika").src}
                   style={{ filter: filteriObj.filter }}
@@ -408,7 +404,6 @@ const Slika = () => {
                 IZREŽI
               </button>
             )}
-            {console.log(!rezanje && prethodnoStanje != "")}
             {!rezanje && prethodnoStanje != "" && (
               <button
                 className="absolute px-8 py-4 bottom-[14vh] font-bold w-32 bg-slate-800 text-white rounded-md"

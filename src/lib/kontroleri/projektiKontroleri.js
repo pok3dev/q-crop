@@ -4,7 +4,7 @@ const fs = require("fs");
 const { greskaRes, uspjesnoRes } = require("../alati/respones.js");
 
 exports.dohvatiProjekte = (req, res, next) => {
-  const idKorisnika = req.body.idKorisnika;
+  const idKorisnika = req.user.id;
 
   // Provjeravamo da li postoji ID
   if (!idKorisnika) throw new Error("Nesto nije u redu...");
@@ -82,12 +82,11 @@ exports.kreirajProjekat = (req, res, next) => {
 
 exports.dohvatiProjekat = (req, res, next) => {
   const id = req.body.id;
-
   // Provjeravamo postoji li ID
   if (!id) throw new Error("Nesto nije u redu...");
 
   // Izvrsavamo dohvatanje projekta i njegovih filtera ako je ID ispravan
-  const queryProjekat = `select * from slike where id=${id}`;
+  const queryProjekat = `select * from slike where id=${id} and id_korisnika=${req.user.id}`;
   db.query(queryProjekat, (error, rezultatiProjetka) => {
     if (error) {
       return new Error(error.message);
@@ -129,15 +128,16 @@ exports.sacuvajProjekat = (req, res, next) => {
 
 exports.izbrišiProjekat = (req, res, next) => {
   const projekat = req.body;
+  const idKorisnika = req.user.id;
 
   // Određivanje slike
-  const querySlika = `select slika from slike where id = ${projekat.id}`;
+  const querySlika = `select slika from slike where id = ${req.user.id}`;
   db.query(querySlika, (error, results) => {
     if (results.length === 0) throw new Error("Projekat ne postoji");
     projekat.slika = results[0].slika;
 
     // Brisanje tablice projekta
-    const queryProjekat = `delete from slike where id = ${projekat.id} AND id_korisnika = ${projekat.idKorisnika};`;
+    const queryProjekat = `delete from slike where id = ${projekat.id} AND id_korisnika = ${idKorisnika};`;
     db.query(queryProjekat, (error, results) => {
       if (error) {
         greskaRes(res, 400, error.message);

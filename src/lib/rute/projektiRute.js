@@ -13,11 +13,13 @@ projektiRuter.post(
 
 projektiRuter.post(
   "/projekti/dohvatiProjekat",
+  korisnikKontroleri.auth,
   projektiKontroleri.dohvatiProjekat
 );
 
 projektiRuter.post(
   "/projekti/dohvatiProjekte",
+  korisnikKontroleri.auth,
   projektiKontroleri.dohvatiProjekte
 );
 
@@ -34,6 +36,7 @@ projektiRuter.patch(
 
 projektiRuter.delete(
   "/projekti/izbrisiProjekat",
+  korisnikKontroleri.auth,
   projektiKontroleri.izbrišiProjekat
 );
 
